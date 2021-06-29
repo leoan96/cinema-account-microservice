@@ -26,6 +26,8 @@
     "@nestjs/core": "^7.6.15",
     "@nestjs/mongoose": "^7.2.4",
     "@nestjs/platform-express": "^7.6.15",
+    "@types/bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
     "express-http-context": "^1.2.4",
     "helmet": "^4.6.0",
     "mongoose": "^5.12.15",

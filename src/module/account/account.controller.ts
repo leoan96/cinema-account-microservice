@@ -16,13 +16,15 @@ import { AccountProfile } from './interface/account-profile.interface';
 
 @Controller('/account')
 export class AccountController {
-  // 1. updateAccountDto - extract only allowed property (if not included in updateAccountDto, don't extract)
-  // 2. write error handling (wrong id / wrong input / malicious input - try to change _id of mongodb)
-  // 3. check if account exists before updating / deleting / creating account
-  // 4. input validation
+  //   1. updateAccountDto - extract only allowed property (if not included in updateAccountDto, don't extract)
+  //   2. write error handling (wrong id / wrong input / malicious input - try to change _id of mongodb)
+  //   3. check if account exists before updating / deleting / creating account
+  //   4. input validation
+  //   5. update configuration to use: process.env.PORT || 3000 which will prioritize local environments and default to 3000 when local environment is not set (https://github.com/nestjsx/nestjs-config)
 
   constructor(private accountService: AccountService) {}
 
+  // testing express-http-context library
   @Get('testHttpContext')
   configTest(): string {
     const correlationId: string = httpContext.get('correlationId');

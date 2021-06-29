@@ -8,6 +8,23 @@ import { setCorrelationId } from 'shared/utils';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Access-Control-Allow-Headers',
+      'DNT',
+      'X-CustomHeader',
+      'Keep-Alive',
+      'User-Agent',
+      'X-Requested-With',
+      'If-Modified-Since',
+      'Cache-Control',
+      'Content-Type',
+    ],
+  });
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   app.use(httpContext.middleware);
@@ -18,3 +35,5 @@ async function bootstrap() {
   await app.listen(app.get('ConfigService').get('SERVER_PORT', '3000'));
 }
 bootstrap();
+
+// 1. app.enableCors() (main.ts) - https://auth0.com/blog/cors-tutorial-a-guide-to-cross-origin-resource-sharing/
