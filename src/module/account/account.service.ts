@@ -5,6 +5,8 @@ import { CreateAccountDTO } from './dto/create-account.dto';
 import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
 import { Account, AccountDocument } from './schema/account.schema';
+import * as lodash from 'lodash';
+import { comparePassword, hashPassword } from './account.helper';
 
 @Injectable()
 export class AccountService {
@@ -23,7 +25,18 @@ export class AccountService {
   async createAccount(
     createAccountDto: CreateAccountDTO,
   ): Promise<AccountProfile> {
-    return this.accountModel.create(createAccountDto);
+    let newAccount = lodash.pick(createAccountDto, [
+      'firstName',
+      'lastName',
+      'password',
+      'email',
+      'phone',
+      'language',
+    ]);
+
+    const hashedPassword = await hashPassword(newAccount.password);
+    newAccount = { ...newAccount, password: hashedPassword };
+    return this.accountModel.create(newAccount);
   }
 
   async updateAccount(

@@ -20,7 +20,10 @@ async function bootstrap() {
   app.use(express.json());
   app.use(httpContext.middleware);
   app.use(session(config.session));
-  app.use(csurf());
+  // temporarily commented as csurf causes "invalid csrf token" error when using POST request to create account
+  // TODO: investigate how to incorporate csurf token into POST request at a later date
+  // https://stackoverflow.com/questions/65828687/how-to-set-csurf-express-middleware-up-to-work-with-postman (How to set CSURF (Express Middleware) up to work with Postman?)
+  // app.use(csurf());
   app.use(setCorrelationId);
 
   await app.listen(app.get('ConfigService').get('app.port'));
