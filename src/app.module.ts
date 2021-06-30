@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AppConfigurationService } from './app-configuration.service';
+import { appConfiguration } from './app.configuration';
 import { AccountModule } from './module/account/account.module';
 
 @Module({
@@ -8,6 +10,7 @@ import { AccountModule } from './module/account/account.module';
     // configure .env file
     ConfigModule.forRoot({
       envFilePath: '.env',
+      load: [appConfiguration],
       isGlobal: true,
     }),
     // configure mongoose (MongoDB) connection
@@ -24,6 +27,6 @@ import { AccountModule } from './module/account/account.module';
     AccountModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AppConfigurationService],
 })
 export class AppModule {}
