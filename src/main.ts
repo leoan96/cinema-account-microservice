@@ -21,13 +21,6 @@ async function bootstrap() {
   app.use(session(config.session));
   app.use(setCorrelationId);
 
-  // https://github.com/nestjsx/nestjs-config/issues/49
-  // '3000' is default value if SERVER_PORT is not found
   await app.listen(app.get('ConfigService').get('app.port'));
 }
 bootstrap();
-
-// 1. app.enableCors() (main.ts) - https://auth0.com/blog/cors-tutorial-a-guide-to-cross-origin-resource-sharing/
-// 2. refactor middleware options to use AppConfigurationService (main.ts)
-// 3. configure session (main.ts)
-// 4. setup redis
