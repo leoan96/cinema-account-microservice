@@ -39,17 +39,11 @@ export class AccountController {
   @Get('testGetSession')
   async sessionTest(@Session() session) {
     const sessionID: string = session.id;
-    // await this.redisService.set(sessionID, 'Piglet');
-    // const value = await this.redisService.get(sessionID);
-    // const value = await this.redisService.get('1');
-    // console.log(value);
 
-    // session.user = 'Piglet';
-    // // return { ...session, sessionID, redisValue: value };
-    // return { ...session, sessionID };
-    const value = await this.redisPromiseService.get('disney');
-    console.log(value);
-    return { sessionID, value };
+    // await this.redisPromiseService.set('best friend', 'pooh');
+    // const value = await this.redisPromiseService.get('disney');
+
+    return { sessionID };
   }
 
   @Get('testDestroySession')
