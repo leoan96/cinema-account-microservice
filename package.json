@@ -29,6 +29,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/redis": "^2.8.30",
     "bcrypt": "^5.0.1",
+    "csurf": "^1.11.0",
     "express-http-context": "^1.2.4",
     "express-session": "^1.17.2",
     "helmet": "^4.6.0",

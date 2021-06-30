@@ -3,6 +3,7 @@ import * as express from 'express';
 import * as helmet from 'helmet';
 import * as httpContext from 'express-http-context';
 import * as session from 'express-session';
+import * as csurf from 'csurf';
 import { AppModule } from './app.module';
 import { setCorrelationId } from 'shared/utils';
 import { ConfigurationService } from './config/configuration.service';
@@ -19,6 +20,7 @@ async function bootstrap() {
   app.use(express.json());
   app.use(httpContext.middleware);
   app.use(session(config.session));
+  app.use(csurf());
   app.use(setCorrelationId);
 
   await app.listen(app.get('ConfigService').get('app.port'));
