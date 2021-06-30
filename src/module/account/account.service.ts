@@ -6,7 +6,7 @@ import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
 import { Account, AccountDocument } from './schema/account.schema';
 import * as lodash from 'lodash';
-import { comparePassword, hashPassword } from './account.helper';
+import { hashPassword } from './account.helper';
 
 @Injectable()
 export class AccountService {
@@ -15,11 +15,11 @@ export class AccountService {
   ) {}
 
   async getAllAccounts(): Promise<AccountProfile[]> {
-    return this.accountModel.find({});
+    return await this.accountModel.find({});
   }
 
   async getAccountById(theId: number): Promise<AccountProfile> {
-    return this.accountModel.findById(theId);
+    return await this.accountModel.findById(theId);
   }
 
   async createAccount(
@@ -36,7 +36,7 @@ export class AccountService {
 
     const hashedPassword = await hashPassword(newAccount.password);
     newAccount = { ...newAccount, password: hashedPassword };
-    return this.accountModel.create(newAccount);
+    return await this.accountModel.create(newAccount);
   }
 
   async updateAccount(
@@ -56,10 +56,10 @@ export class AccountService {
         new: true,
       },
     );
-    return updatedAccount;
+    return await updatedAccount;
   }
 
   async deleteAccount(theId: number): Promise<AccountProfile> {
-    return this.accountModel.findByIdAndDelete(theId);
+    return await this.accountModel.findByIdAndDelete(theId);
   }
 }

@@ -10,11 +10,14 @@ import {
   Session,
 } from '@nestjs/common';
 import * as httpContext from 'express-http-context';
+import { AuthenticationService } from '../authentication/authentication.service';
 import { RedisPromiseService } from '../redis/redis-promise.service';
 import { AccountService } from './account.service';
 import { CreateAccountDTO } from './dto/create-account.dto';
+import { LoginDTO } from './dto/login.dto';
 import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
+import { ExpressSessionUserId } from './interface/express-session-userId.interface';
 
 @Controller('/account')
 export class AccountController {
@@ -25,6 +28,7 @@ export class AccountController {
   constructor(
     private accountService: AccountService,
     private redisPromiseService: RedisPromiseService,
+    private authenticationService: AuthenticationService,
   ) {}
 
   // testing express-http-context library
@@ -53,21 +57,24 @@ export class AccountController {
     // await this.redisService.del(session.id);
   }
 
-  // get all accounts
+  @Get('logout')
+  @HttpCode(200)
+  async logout(@Session() theSession: ExpressSessionUserId): Promise<void> {
+    this.authenticationService.logout(theSession);
+  }
+
   @Get('')
   @HttpCode(200)
   async getAllAccounts(): Promise<AccountProfile[]> {
     return await this.accountService.getAllAccounts();
   }
 
-  //   get account by id
   @Get(':id')
   @HttpCode(200)
   async getAccountById(@Param('id') theId: number): Promise<AccountProfile> {
     return await this.accountService.getAccountById(theId);
   }
 
-  // create account
   @Post()
   @HttpCode(201)
   async createAccount(
@@ -76,7 +83,6 @@ export class AccountController {
     await this.accountService.createAccount(createAccountDto);
   }
 
-  // update account
   @Put(':id')
   @HttpCode(200)
   async updateAccount(
@@ -86,10 +92,28 @@ export class AccountController {
     return await this.accountService.updateAccount(updateAccountDto, theId);
   }
 
-  // delete account
   @Delete(':id')
   @HttpCode(204)
   async deleteAccount(@Param('id') theId: number): Promise<void> {
     await this.accountService.deleteAccount(theId);
+  }
+
+  @Post('login')
+  @HttpCode(200)
+  async login(
+    @Body() loginDto: LoginDTO,
+    @Session() theSession: ExpressSessionUserId,
+  ): Promise<AccountProfile> {
+    const { email, password } = loginDto;
+
+    // create error handler for case when authenticationService throws error
+    const account: AccountProfile = await this.authenticationService.login({
+      email,
+      password,
+    });
+
+    theSession.userId = account['_id'];
+    console.log(theSession.id);
+    return account;
   }
 }

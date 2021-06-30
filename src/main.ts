@@ -7,9 +7,10 @@ import * as csurf from 'csurf';
 import { AppModule } from './app.module';
 import { setCorrelationId } from 'shared/utils';
 import { ConfigurationService } from './config/configuration.service';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // general config service
   const config = app.get(ConfigurationService).get('appConfig');
@@ -18,6 +19,7 @@ async function bootstrap() {
   app.enableCors(config.cors);
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+  app.set('trust proxy', 1); // trust first proxy
   app.use(httpContext.middleware);
   app.use(session(config.session));
   // temporarily commented as csurf causes "invalid csrf token" error when using POST request to create account

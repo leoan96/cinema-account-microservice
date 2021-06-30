@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type AccountDocument = Account & Document;
 
-@Schema()
+@Schema({ toObject: { getters: true }, versionKey: false })
 export class Account {
   @Prop({ required: true })
   firstName: string;
@@ -11,7 +11,7 @@ export class Account {
   @Prop({ required: true })
   lastName: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, select: false })
   password: string;
 
   @Prop({ required: true, unique: true })
