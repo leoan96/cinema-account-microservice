@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppConfigurationService } from './app-configuration.service';
 import { appConfiguration } from './app.configuration';
+import { ConfigurationModule } from './config/config.module';
 import { AccountModule } from './module/account/account.module';
 import { redisConfiguration } from './module/redis/redis.configuration';
 
@@ -26,8 +26,7 @@ import { redisConfiguration } from './module/redis/redis.configuration';
       inject: [ConfigService],
     }),
     AccountModule,
+    ConfigurationModule,
   ],
-  controllers: [],
-  providers: [AppConfigurationService],
 })
 export class AppModule {}

@@ -5,18 +5,20 @@ import * as httpContext from 'express-http-context';
 import * as session from 'express-session';
 import { AppModule } from './app.module';
 import { setCorrelationId } from 'shared/utils';
-import { AppConfigurationService } from './app-configuration.service';
+import { ConfigurationService } from './config/configuration.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const appConfig = app.get(AppConfigurationService).get();
+
+  // general config service
+  const config = app.get(ConfigurationService).get('appConfig');
 
   app.use(helmet());
-  app.enableCors(appConfig.cors);
+  app.enableCors(config.cors);
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   app.use(httpContext.middleware);
-  app.use(session(appConfig.session));
+  app.use(session(config.session));
   app.use(setCorrelationId);
 
   // https://github.com/nestjsx/nestjs-config/issues/49
