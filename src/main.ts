@@ -21,7 +21,7 @@ async function bootstrap() {
 
   // https://github.com/nestjsx/nestjs-config/issues/49
   // '3000' is default value if SERVER_PORT is not found
-  await app.listen(app.get('ConfigService').get('SERVER_PORT', '3000'));
+  await app.listen(app.get('ConfigService').get('app.port'));
 }
 bootstrap();
 

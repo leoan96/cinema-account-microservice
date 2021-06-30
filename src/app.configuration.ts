@@ -4,6 +4,6 @@ export const appConfiguration = () => ({
       secret: process.env.EXPRESS_SESSION_SECRET,
     },
     environment: process.env.NODE_ENV || 'development',
-    port: process.env.SERVER_PORT || 5000,
+    port: process.env.SERVER_PORT || 3000,
   },
 });

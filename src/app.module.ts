@@ -4,13 +4,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigurationService } from './app-configuration.service';
 import { appConfiguration } from './app.configuration';
 import { AccountModule } from './module/account/account.module';
+import { redisConfiguration } from './module/redis/redis.configuration';
 
 @Module({
   imports: [
     // configure .env file
     ConfigModule.forRoot({
       envFilePath: '.env',
-      load: [appConfiguration],
+      load: [appConfiguration, redisConfiguration],
       isGlobal: true,
     }),
     // configure mongoose (MongoDB) connection

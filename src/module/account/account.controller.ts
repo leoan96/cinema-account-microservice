@@ -10,6 +10,7 @@ import {
   Session,
 } from '@nestjs/common';
 import * as httpContext from 'express-http-context';
+import { RedisPromiseService } from '../redis/redis-promise.service';
 import { AccountService } from './account.service';
 import { CreateAccountDTO } from './dto/create-account.dto';
 import { UpdateAccountDTO } from './dto/update-account-profile.dto';
@@ -23,7 +24,10 @@ export class AccountController {
   //   4. input validation
   //   5. update configuration to use: process.env.PORT || 3000 which will prioritize local environments and default to 3000 when local environment is not set (https://github.com/nestjsx/nestjs-config)
 
-  constructor(private accountService: AccountService) {}
+  constructor(
+    private accountService: AccountService,
+    private redisPromiseService: RedisPromiseService,
+  ) {}
 
   // testing express-http-context library
   @Get('testHttpContext')
@@ -43,7 +47,9 @@ export class AccountController {
     // session.user = 'Piglet';
     // // return { ...session, sessionID, redisValue: value };
     // return { ...session, sessionID };
-    return { sessionID };
+    const value = await this.redisPromiseService.get('disney');
+    console.log(value);
+    return { sessionID, value };
   }
 
   @Get('testDestroySession')
