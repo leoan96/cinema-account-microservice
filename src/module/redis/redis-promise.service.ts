@@ -18,4 +18,9 @@ export class RedisPromiseService {
     const set = promisify(this.client.set).bind(this.client);
     return await set(key, value);
   }
+
+  async del(key: string): Promise<void> {
+    const del = promisify(this.client.del).bind(this.client);
+    await del(key);
+  }
 }

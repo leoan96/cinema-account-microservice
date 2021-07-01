@@ -23,7 +23,6 @@ async function bootstrap() {
   app.set('trust proxy', 1); // trust first proxy
   app.use(httpContext.middleware);
   app.use(await session);
-
   // temporarily commented as csurf causes "invalid csrf token" error when using POST request to create account
   // TODO: investigate how to incorporate csurf token into POST request at a later date
   // https://stackoverflow.com/questions/65828687/how-to-set-csurf-express-middleware-up-to-work-with-postman (How to set CSURF (Express Middleware) up to work with Postman?)

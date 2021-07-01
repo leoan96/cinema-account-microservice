@@ -7,11 +7,13 @@ import { AccountProfile } from './interface/account-profile.interface';
 import { Account, AccountDocument } from './schema/account.schema';
 import * as lodash from 'lodash';
 import { hashPassword } from './account.helper';
+import { RedisPromiseService } from '../redis/redis-promise.service';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
+    private redisPromiseService: RedisPromiseService,
   ) {}
 
   async getAllAccounts(): Promise<AccountProfile[]> {
@@ -61,5 +63,27 @@ export class AccountService {
 
   async deleteAccount(theId: number): Promise<AccountProfile> {
     return await this.accountModel.findByIdAndDelete(theId);
+  }
+
+  async saveSessionToMongo(
+    accountId: string,
+    sessionId: string,
+  ): Promise<void> {
+    await this.accountModel.findByIdAndUpdate(accountId, {
+      redisSessionId: sessionId,
+    });
+  }
+
+  async detroySessionFromMongo(accountId: string): Promise<void> {
+    await this.accountModel.findByIdAndUpdate(accountId, {
+      redisSessionId: null,
+    });
+  }
+
+  async destroySession(sessionId: string): Promise<void> {
+    const id = `sess:${sessionId}`;
+    const { userId } = JSON.parse(await this.redisPromiseService.get(id));
+    await this.detroySessionFromMongo(userId);
+    await this.redisPromiseService.del(id);
   }
 }

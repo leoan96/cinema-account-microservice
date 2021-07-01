@@ -27,7 +27,6 @@ export class AccountController {
 
   constructor(
     private accountService: AccountService,
-    private redisPromiseService: RedisPromiseService,
     private authenticationService: AuthenticationService,
   ) {}
 
@@ -42,7 +41,8 @@ export class AccountController {
   @Get('logout')
   @HttpCode(200)
   async logout(@Session() theSession: ExpressSessionUserId): Promise<void> {
-    this.authenticationService.logout(theSession);
+    await this.accountService.detroySessionFromMongo(theSession.userId);
+    await this.authenticationService.logout(theSession);
   }
 
   @Get('')
@@ -51,6 +51,13 @@ export class AccountController {
     return await this.accountService.getAllAccounts();
   }
 
+  @Get('destroySession/:id')
+  @HttpCode(200)
+  async destroySession(@Param('id') sessionid: string): Promise<void> {
+    await this.accountService.destroySession(sessionid);
+  }
+
+  // this @Get(:id) route handler should be put as the last of @Get() as it has param as path
   @Get(':id')
   @HttpCode(200)
   async getAccountById(@Param('id') theId: number): Promise<AccountProfile> {
@@ -63,21 +70,6 @@ export class AccountController {
     @Body() createAccountDto: CreateAccountDTO,
   ): Promise<void> {
     await this.accountService.createAccount(createAccountDto);
-  }
-
-  @Put(':id')
-  @HttpCode(200)
-  async updateAccount(
-    @Body() updateAccountDto: UpdateAccountDTO,
-    @Param('id') theId: number,
-  ): Promise<AccountProfile> {
-    return await this.accountService.updateAccount(updateAccountDto, theId);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  async deleteAccount(@Param('id') theId: number): Promise<void> {
-    await this.accountService.deleteAccount(theId);
   }
 
   @Post('login')
@@ -95,7 +87,26 @@ export class AccountController {
     });
 
     theSession.userId = account['_id'];
+    await this.accountService.saveSessionToMongo(
+      theSession.userId,
+      theSession.id,
+    );
     console.log(theSession.id);
     return account;
+  }
+
+  @Put(':id')
+  @HttpCode(200)
+  async updateAccount(
+    @Body() updateAccountDto: UpdateAccountDTO,
+    @Param('id') theId: number,
+  ): Promise<AccountProfile> {
+    return await this.accountService.updateAccount(updateAccountDto, theId);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  async deleteAccount(@Param('id') theId: number): Promise<void> {
+    await this.accountService.deleteAccount(theId);
   }
 }

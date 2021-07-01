@@ -28,6 +28,9 @@ export class Account {
 
   @Prop()
   updatedAt: Date;
+
+  @Prop({ select: false })
+  redisSessionId?: string;
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account);
