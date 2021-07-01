@@ -17,9 +17,4 @@ export class RedisSubscriberService {
       fn(channel, message),
     );
   }
-
-  async sendCommand(commands: string): Promise<any> {
-    const sendCommand = promisify(this.client.sendCommand).bind(this.client);
-    return await sendCommand(commands);
-  }
 }
