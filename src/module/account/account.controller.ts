@@ -39,24 +39,6 @@ export class AccountController {
     return correlationId;
   }
 
-  // REMOVE when login & logout functionality is done
-  @Get('testGetSession')
-  async sessionTest(@Session() session) {
-    const sessionID: string = session.id;
-
-    // await this.redisPromiseService.set('best friend', 'pooh');
-    // const value = await this.redisPromiseService.get('disney');
-
-    return { sessionID };
-  }
-
-  // REMOVE when login & logout functionality is done
-  @Get('testDestroySession')
-  async destroySession(@Session() session) {
-    // await session.destroy;
-    // await this.redisService.del(session.id);
-  }
-
   @Get('logout')
   @HttpCode(200)
   async logout(@Session() theSession: ExpressSessionUserId): Promise<void> {
