@@ -8,6 +8,7 @@ import { AuthenticationModule } from './module/authentication/authentication.mod
 import { mongooseConfiguration } from './module/mongoose/mongoose.configuration';
 import { MongooseClient } from './module/mongoose/mongoose.provider';
 import { redisConfiguration } from './module/redis/redis.configuration';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { redisConfiguration } from './module/redis/redis.configuration';
     AccountModule,
     ConfigurationModule,
     AuthenticationModule,
+    SessionModule,
   ],
 })
 export class AppModule {}

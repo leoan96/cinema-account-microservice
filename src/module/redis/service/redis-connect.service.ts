@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RedisClient } from 'redis';
-import { REDIS_CLIENT } from './redis.provider';
+import { REDIS_CLIENT } from '../provider/redis.provider';
 import * as session from 'express-session';
 import * as connectRedis from 'connect-redis';
 import { ConfigurationService } from 'src/config/configuration.service';

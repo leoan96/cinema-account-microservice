@@ -30,7 +30,8 @@ export const appConfig = (configService: ConfigService) => ({
       secure:
         configService.get('app.environment') === 'development' ? false : true,
       httpOnly: false,
-      maxAge: 1000 * 60 * 10, // millisecond * second * minute (ToDo: put configuration to .env file)
+      maxAge: 6000, // millisecond * second * minute (ToDo: put configuration to .env file)
+      // maxAge: 1000 * 60 * 10, // millisecond * second * minute (ToDo: put configuration to .env file)
     },
   },
 });

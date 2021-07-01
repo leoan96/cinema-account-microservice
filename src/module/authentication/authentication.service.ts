@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { comparePassword } from '../account/account.helper';
 import { AccountProfile } from '../account/interface/account-profile.interface';
 import { Account, AccountDocument } from '../account/schema/account.schema';
-import { RedisPromiseService } from '../redis/redis-promise.service';
 import { Login } from './interface/login.interface';
 import * as lodash from 'lodash';
 import { ExpressSessionUserId } from '../account/interface/express-session-userId.interface';
@@ -13,7 +12,6 @@ import { ExpressSessionUserId } from '../account/interface/express-session-userI
 export class AuthenticationService {
   constructor(
     @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
-    private redisPromiseService: RedisPromiseService,
   ) {}
 
   async login({ email, password }: Login): Promise<AccountProfile> {

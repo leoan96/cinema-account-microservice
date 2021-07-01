@@ -7,7 +7,8 @@ import { AppModule } from './app.module';
 import { setCorrelationId } from 'shared/utils';
 import { ConfigurationService } from './config/configuration.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { RedisConnectService } from './module/redis/redis-connect.service';
+import { RedisConnectService } from './module/redis/service/redis-connect.service';
+import { RedisSubscribeExpiredService } from './session/redis-subscribe-expired.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -15,6 +16,7 @@ async function bootstrap() {
   // general config service
   const config = app.get(ConfigurationService).get('appConfig');
   const session = app.get(RedisConnectService).getRedisSession();
+  await app.get(RedisSubscribeExpiredService).subscribeRedisExpired();
 
   app.use(helmet());
   app.enableCors(config.cors);

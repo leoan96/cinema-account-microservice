@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import * as httpContext from 'express-http-context';
 import { AuthenticationService } from '../authentication/authentication.service';
-import { RedisPromiseService } from '../redis/redis-promise.service';
 import { AccountService } from './account.service';
 import { CreateAccountDTO } from './dto/create-account.dto';
 import { LoginDTO } from './dto/login.dto';
@@ -24,6 +23,7 @@ export class AccountController {
   //   1. updateAccountDto - extract only allowed property (if not included in updateAccountDto, don't extract)
   //   2. write error handling (wrong id / wrong input / malicious input - try to change _id of mongodb)
   //   3. check if account exists before updating / deleting / creating account
+  //   4. add feature support to store an array of session id to schema
 
   constructor(
     private accountService: AccountService,
@@ -91,7 +91,6 @@ export class AccountController {
       theSession.userId,
       theSession.id,
     );
-    console.log(theSession.id);
     return account;
   }
 
