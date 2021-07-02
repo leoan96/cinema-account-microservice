@@ -9,9 +9,11 @@ import { ConfigurationService } from './config/configuration.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { RedisConnectService } from './module/redis/service/redis-connect.service';
 import { RedisSubscribeExpiredService } from './module/session/redis-subscribe-expired.service';
+import { CustomLogger } from './logger/custom-logger.logger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useLogger(app.get(CustomLogger));
 
   // general config service
   const config = app.get(ConfigurationService).get('appConfig');
