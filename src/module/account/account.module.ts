@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { RedisModule } from '../redis/redis.module';
-import { AccountController } from './account.controller';
+import { AccountController } from './controller/account.controller';
 import { AccountService } from './account.service';
 import { Account, AccountSchema } from './schema/account.schema';
+import { AccountAdminController } from './controller/account-admin.controller';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Account, AccountSchema } from './schema/account.schema';
     RedisModule,
     AuthenticationModule,
   ],
-  controllers: [AccountController],
+  controllers: [AccountController, AccountAdminController],
   providers: [AccountService],
   exports: [AccountService],
 })

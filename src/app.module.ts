@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { appConfiguration } from './app.configuration';
 import { ConfigurationModule } from './config/config.module';
+import { RoleGuard } from './guard/role/role.guard';
 import { AccountModule } from './module/account/account.module';
 import { AuthenticationModule } from './module/authentication/authentication.module';
 import { mongooseConfiguration } from './module/mongoose/mongoose.configuration';

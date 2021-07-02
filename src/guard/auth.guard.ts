@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
+import { verifyBackendToken } from 'shared/utils';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -12,9 +13,11 @@ export class AuthGuard implements CanActivate {
   }
 
   private validateSession(request: Request): boolean {
-    const token = request.headers.authorization?.split(' ')[1];
-    const backendToken = this.configService.get<string>('BACKEND_TOKEN');
+    const verifiedBackendToken = verifyBackendToken(
+      request,
+      this.configService,
+    );
 
-    return !!request.session['userId'] || backendToken === token;
+    return !!request.session['userId'] || verifiedBackendToken;
   }
 }

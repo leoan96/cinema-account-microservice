@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Param,
   Post,
   Put,
   Session,
@@ -14,13 +13,16 @@ import {
 import * as httpContext from 'express-http-context';
 import * as lodash from 'lodash';
 import { AuthGuard } from 'src/guard/auth.guard';
-import { AuthenticationService } from '../authentication/authentication.service';
-import { AccountService } from './account.service';
-import { CreateAccountDTO } from './dto/create-account.dto';
-import { LoginDTO } from './dto/login.dto';
-import { UpdateAccountDTO } from './dto/update-account-profile.dto';
-import { AccountProfile } from './interface/account-profile.interface';
-import { ExpressSessionUser } from './interface/express-session-userId.interface';
+import { Roles } from 'src/guard/role/role.decorator';
+import { Role } from 'src/guard/role/role.enum';
+import { RoleGuard } from 'src/guard/role/role.guard';
+import { AuthenticationService } from '../../authentication/authentication.service';
+import { AccountService } from '../account.service';
+import { CreateAccountDTO } from '../dto/create-account.dto';
+import { LoginDTO } from '../dto/login.dto';
+import { UpdateAccountDTO } from '../dto/update-account-profile.dto';
+import { AccountProfile } from '../interface/account-profile.interface';
+import { ExpressSessionUser } from '../interface/express-session-userId.interface';
 
 @Controller('/account')
 export class AccountController {
@@ -42,33 +44,23 @@ export class AccountController {
     return correlationId;
   }
 
+  @Get('')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.User)
+  @UseGuards(AuthGuard, RoleGuard)
+  async getAccountById(
+    @Session() session: ExpressSessionUser,
+  ): Promise<AccountProfile> {
+    return await this.accountService.getAccountById(session.userId);
+  }
+
   @Get('logout')
   @HttpCode(HttpStatus.OK)
+  @Roles(Role.User, Role.Admin)
+  @UseGuards(AuthGuard, RoleGuard)
   async logout(@Session() theSession: ExpressSessionUser): Promise<void> {
     await this.accountService.detroySessionFromMongo(theSession.userId);
     await this.authenticationService.logout(theSession);
-  }
-
-  @Get('')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
-  async getAllAccounts(): Promise<AccountProfile[]> {
-    return await this.accountService.getAllAccounts();
-  }
-
-  @Get('destroySession/:id')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
-  async destroySession(@Param('id') sessionid: string): Promise<void> {
-    await this.accountService.destroySession(sessionid);
-  }
-
-  // this @Get(:id) route handler should be put as the last of @Get() as it has param as path
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
-  async getAccountById(@Param('id') theId: number): Promise<AccountProfile> {
-    return await this.accountService.getAccountById(theId);
   }
 
   @Post()
@@ -105,7 +97,7 @@ export class AccountController {
            only one session is actually being used.
     */
     theSession.userId = account['_id'];
-    theSession.role = account.role;
+    theSession.user = account;
     await this.accountService.saveSessionToMongo(
       theSession.userId,
       theSession.id,
@@ -113,20 +105,25 @@ export class AccountController {
     return lodash.omit(account, ['role']);
   }
 
-  @Put(':id')
+  @Put('')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthGuard, RoleGuard)
   async updateAccount(
     @Body() updateAccountDto: UpdateAccountDTO,
-    @Param('id') theId: number,
+    @Session() session: ExpressSessionUser,
   ): Promise<AccountProfile> {
-    return await this.accountService.updateAccount(updateAccountDto, theId);
+    return await this.accountService.updateAccount(
+      updateAccountDto,
+      session.userId,
+    );
   }
 
-  @Delete(':id')
+  @Delete('')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(AuthGuard)
-  async deleteAccount(@Param('id') theId: number): Promise<void> {
-    await this.accountService.deleteAccount(theId);
+  @Roles(Role.User)
+  @UseGuards(AuthGuard, RoleGuard)
+  async deleteAccount(@Session() session: ExpressSessionUser): Promise<void> {
+    await this.accountService.deleteAccount(session.userId);
   }
 }

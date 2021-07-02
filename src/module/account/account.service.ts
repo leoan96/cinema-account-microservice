@@ -25,7 +25,7 @@ export class AccountService {
     return await this.accountModel.find({});
   }
 
-  async getAccountById(theId: number): Promise<AccountProfile> {
+  async getAccountById(theId: string): Promise<AccountProfile> {
     return await this.accountModel.findById(theId);
   }
 
@@ -52,7 +52,7 @@ export class AccountService {
 
   async updateAccount(
     updateAccountDto: UpdateAccountDTO,
-    theId: number,
+    theId: string,
   ): Promise<AccountProfile> {
     const account = this.getAccountById(theId);
     if (!account) {
@@ -70,7 +70,7 @@ export class AccountService {
     return await updatedAccount;
   }
 
-  async deleteAccount(theId: number): Promise<AccountProfile> {
+  async deleteAccount(theId: string): Promise<AccountProfile> {
     return await this.accountModel.findByIdAndDelete(theId);
   }
 
@@ -100,6 +100,6 @@ export class AccountService {
     const id = `sess:${sessionId}`;
     const { userId } = JSON.parse(await this.redisPromiseService.get(id));
     await this.detroySessionFromMongo(userId);
-    await this.redisPromiseService.del(sessionId);
+    await this.redisPromiseService.del(id);
   }
 }
