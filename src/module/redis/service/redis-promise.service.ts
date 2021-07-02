@@ -6,7 +6,7 @@ import { REDIS_CLIENT } from '../provider/redis.provider';
 
 @Injectable()
 export class RedisPromiseService {
-  constructor(@Inject(REDIS_CLIENT) private client: RedisClient) {}
+  constructor(@Inject(REDIS_CLIENT) private readonly client: RedisClient) {}
 
   // promisify redis: https://noahkreiger.medium.com/nodejs-redis-setting-it-up-asynchronously-ba8db73e07de
 

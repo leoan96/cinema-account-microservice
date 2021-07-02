@@ -1,33 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateAccountDTO } from './dto/create-account.dto';
+import {
+  CreateAccountDTO,
+  CreateAccountRoleDTO,
+} from './dto/create-account.dto';
 import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
 import { Account, AccountDocument } from './schema/account.schema';
 import * as lodash from 'lodash';
 import { hashPassword } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
+import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
 
 @Injectable()
 export class AccountService {
   constructor(
-    @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
-    private redisPromiseService: RedisPromiseService,
+    @InjectModel(Account.name)
+    private readonly accountModel: Model<AccountDocument>,
+    private readonly redisPromiseService: RedisPromiseService,
   ) {}
 
   async getAllAccounts(): Promise<AccountProfile[]> {
     return await this.accountModel.find({});
   }
 
-  async getAccountById(theId: number): Promise<AccountProfile> {
+  async getAccountById(theId: string): Promise<AccountProfile> {
     return await this.accountModel.findById(theId);
   }
 
   async createAccount(
     createAccountDto: CreateAccountDTO,
   ): Promise<AccountProfile> {
-    let newAccount = lodash.pick(createAccountDto, [
+    const filteredAccountDetails = lodash.pick(createAccountDto, [
       'firstName',
       'lastName',
       'password',
@@ -36,14 +41,18 @@ export class AccountService {
       'language',
     ]);
 
-    const hashedPassword = await hashPassword(newAccount.password);
-    newAccount = { ...newAccount, password: hashedPassword };
+    const hashedPassword = await hashPassword(filteredAccountDetails.password);
+    const newAccount: CreateAccountRoleDTO = {
+      ...filteredAccountDetails,
+      password: hashedPassword,
+      role: [DEFAULT_ACCOUNT_ROLE],
+    };
     return await this.accountModel.create(newAccount);
   }
 
   async updateAccount(
     updateAccountDto: UpdateAccountDTO,
-    theId: number,
+    theId: string,
   ): Promise<AccountProfile> {
     const account = this.getAccountById(theId);
     if (!account) {
@@ -61,7 +70,7 @@ export class AccountService {
     return await updatedAccount;
   }
 
-  async deleteAccount(theId: number): Promise<AccountProfile> {
+  async deleteAccount(theId: string): Promise<AccountProfile> {
     return await this.accountModel.findByIdAndDelete(theId);
   }
 
@@ -91,6 +100,6 @@ export class AccountService {
     const id = `sess:${sessionId}`;
     const { userId } = JSON.parse(await this.redisPromiseService.get(id));
     await this.detroySessionFromMongo(userId);
-    await this.redisPromiseService.del(sessionId);
+    await this.redisPromiseService.del(id);
   }
 }

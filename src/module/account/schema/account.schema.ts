@@ -31,6 +31,9 @@ export class Account {
 
   @Prop({ select: false })
   redisSessionId?: string;
+
+  @Prop({ select: false })
+  role: [string];
 }
 
 export const AccountSchema = SchemaFactory.createForClass(Account);
