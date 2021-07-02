@@ -8,7 +8,7 @@ import { setCorrelationId } from 'shared/utils';
 import { ConfigurationService } from './config/configuration.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { RedisConnectService } from './module/redis/service/redis-connect.service';
-import { RedisSubscribeExpiredService } from './session/redis-subscribe-expired.service';
+import { RedisSubscribeExpiredService } from './module/session/redis-subscribe-expired.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

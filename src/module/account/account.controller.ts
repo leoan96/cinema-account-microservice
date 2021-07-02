@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -39,33 +40,33 @@ export class AccountController {
   }
 
   @Get('logout')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async logout(@Session() theSession: ExpressSessionUserId): Promise<void> {
     await this.accountService.detroySessionFromMongo(theSession.userId);
     await this.authenticationService.logout(theSession);
   }
 
   @Get('')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async getAllAccounts(): Promise<AccountProfile[]> {
     return await this.accountService.getAllAccounts();
   }
 
   @Get('destroySession/:id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async destroySession(@Param('id') sessionid: string): Promise<void> {
     await this.accountService.destroySession(sessionid);
   }
 
   // this @Get(:id) route handler should be put as the last of @Get() as it has param as path
   @Get(':id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async getAccountById(@Param('id') theId: number): Promise<AccountProfile> {
     return await this.accountService.getAccountById(theId);
   }
 
   @Post()
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   async createAccount(
     @Body() createAccountDto: CreateAccountDTO,
   ): Promise<void> {
@@ -73,7 +74,7 @@ export class AccountController {
   }
 
   @Post('login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDTO,
     @Session() theSession: ExpressSessionUserId,
@@ -95,7 +96,7 @@ export class AccountController {
   }
 
   @Put(':id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async updateAccount(
     @Body() updateAccountDto: UpdateAccountDTO,
     @Param('id') theId: number,
@@ -104,7 +105,7 @@ export class AccountController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAccount(@Param('id') theId: number): Promise<void> {
     await this.accountService.deleteAccount(theId);
   }
