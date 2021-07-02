@@ -6,3 +6,7 @@ export class CreateAccountDTO {
   phone: string;
   language?: string;
 }
+
+export class CreateAccountRoleDTO extends CreateAccountDTO {
+  role: [string];
+}

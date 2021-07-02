@@ -8,7 +8,7 @@ import { ConfigurationService } from 'src/config/configuration.service';
 @Injectable()
 export class RedisConnectService {
   constructor(
-    @Inject(REDIS_CLIENT) private client: RedisClient,
+    @Inject(REDIS_CLIENT) private readonly client: RedisClient,
     private configurationService: ConfigurationService,
   ) {}
 

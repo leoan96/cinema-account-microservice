@@ -5,7 +5,9 @@ import { REDIS_SUBSCRIBER_CLIENT } from '../provider/redis-subscriber.provider';
 
 @Injectable()
 export class RedisSubscriberService {
-  constructor(@Inject(REDIS_SUBSCRIBER_CLIENT) private client: RedisClient) {}
+  constructor(
+    @Inject(REDIS_SUBSCRIBER_CLIENT) private readonly client: RedisClient,
+  ) {}
 
   async subscribe(channel: string): Promise<any> {
     const subscribe = promisify(this.client.subscribe).bind(this.client);
