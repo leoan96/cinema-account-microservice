@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateAccountDTO } from './dto/create-account.dto';
+import {
+  CreateAccountDTO,
+  CreateAccountRoleDTO,
+} from './dto/create-account.dto';
 import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
 import { Account, AccountDocument } from './schema/account.schema';
 import * as lodash from 'lodash';
 import { hashPassword } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
+import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
 
 @Injectable()
 export class AccountService {
@@ -28,7 +32,7 @@ export class AccountService {
   async createAccount(
     createAccountDto: CreateAccountDTO,
   ): Promise<AccountProfile> {
-    let newAccount = lodash.pick(createAccountDto, [
+    const filteredAccountDetails = lodash.pick(createAccountDto, [
       'firstName',
       'lastName',
       'password',
@@ -37,8 +41,12 @@ export class AccountService {
       'language',
     ]);
 
-    const hashedPassword = await hashPassword(newAccount.password);
-    newAccount = { ...newAccount, password: hashedPassword };
+    const hashedPassword = await hashPassword(filteredAccountDetails.password);
+    const newAccount: CreateAccountRoleDTO = {
+      ...filteredAccountDetails,
+      password: hashedPassword,
+      role: [DEFAULT_ACCOUNT_ROLE],
+    };
     return await this.accountModel.create(newAccount);
   }
 

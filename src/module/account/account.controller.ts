@@ -9,8 +9,10 @@ import {
   Post,
   Put,
   Session,
+  UseGuards,
 } from '@nestjs/common';
 import * as httpContext from 'express-http-context';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { AccountService } from './account.service';
 import { CreateAccountDTO } from './dto/create-account.dto';
@@ -27,8 +29,8 @@ export class AccountController {
   //   4. add feature support to store an array of session id to schema
 
   constructor(
-    private accountService: AccountService,
-    private authenticationService: AuthenticationService,
+    private readonly accountService: AccountService,
+    private readonly authenticationService: AuthenticationService,
   ) {}
 
   // testing express-http-context library
@@ -48,12 +50,14 @@ export class AccountController {
 
   @Get('')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   async getAllAccounts(): Promise<AccountProfile[]> {
     return await this.accountService.getAllAccounts();
   }
 
   @Get('destroySession/:id')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   async destroySession(@Param('id') sessionid: string): Promise<void> {
     await this.accountService.destroySession(sessionid);
   }
@@ -61,6 +65,7 @@ export class AccountController {
   // this @Get(:id) route handler should be put as the last of @Get() as it has param as path
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   async getAccountById(@Param('id') theId: number): Promise<AccountProfile> {
     return await this.accountService.getAccountById(theId);
   }
@@ -87,6 +92,17 @@ export class AccountController {
       password,
     });
 
+    /*
+        Found a problem:
+        1. if a legitimate user login successfully, a session associated with the user 
+           would be saved to redis with a ttl.
+        2. but if the user deletes his session and login again, we would issue a new session
+           to the user as the user does not have the previously deleted sessions.
+        3. now we have 2 session associated with the user (but 1 is unused & won't be used again, the other 
+           1 would be used)
+        4. if the user repeatedly performs step (2), this would cause excessive redis session to be created while
+           only one session is actually being used.
+    */
     theSession.userId = account['_id'];
     await this.accountService.saveSessionToMongo(
       theSession.userId,
