@@ -5,8 +5,8 @@ import { RedisSubscriberService } from 'src/module/redis/service/redis-subscribe
 @Injectable()
 export class RedisSubscribeExpiredService {
   constructor(
-    private redisSubscriberService: RedisSubscriberService,
-    private accountService: AccountService,
+    private readonly redisSubscriberService: RedisSubscriberService,
+    private readonly accountService: AccountService,
   ) {}
 
   async subscribeRedisExpired(): Promise<void> {

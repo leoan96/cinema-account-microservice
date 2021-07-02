@@ -11,7 +11,8 @@ import { ExpressSessionUserId } from '../account/interface/express-session-userI
 @Injectable()
 export class AuthenticationService {
   constructor(
-    @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
+    @InjectModel(Account.name)
+    private readonly accountModel: Model<AccountDocument>,
   ) {}
 
   async login({ email, password }: Login): Promise<AccountProfile> {

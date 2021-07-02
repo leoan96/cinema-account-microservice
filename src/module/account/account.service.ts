@@ -12,8 +12,9 @@ import { RedisPromiseService } from '../redis/service/redis-promise.service';
 @Injectable()
 export class AccountService {
   constructor(
-    @InjectModel(Account.name) private accountModel: Model<AccountDocument>,
-    private redisPromiseService: RedisPromiseService,
+    @InjectModel(Account.name)
+    private readonly accountModel: Model<AccountDocument>,
+    private readonly redisPromiseService: RedisPromiseService,
   ) {}
 
   async getAllAccounts(): Promise<AccountProfile[]> {
