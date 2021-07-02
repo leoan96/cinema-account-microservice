@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import * as httpContext from 'express-http-context';
+import * as lodash from 'lodash';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { AccountService } from './account.service';
@@ -19,7 +20,7 @@ import { CreateAccountDTO } from './dto/create-account.dto';
 import { LoginDTO } from './dto/login.dto';
 import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
-import { ExpressSessionUserId } from './interface/express-session-userId.interface';
+import { ExpressSessionUser } from './interface/express-session-userId.interface';
 
 @Controller('/account')
 export class AccountController {
@@ -43,7 +44,7 @@ export class AccountController {
 
   @Get('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Session() theSession: ExpressSessionUserId): Promise<void> {
+  async logout(@Session() theSession: ExpressSessionUser): Promise<void> {
     await this.accountService.detroySessionFromMongo(theSession.userId);
     await this.authenticationService.logout(theSession);
   }
@@ -82,7 +83,7 @@ export class AccountController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDTO,
-    @Session() theSession: ExpressSessionUserId,
+    @Session() theSession: ExpressSessionUser,
   ): Promise<AccountProfile> {
     const { email, password } = loginDto;
 
@@ -104,15 +105,17 @@ export class AccountController {
            only one session is actually being used.
     */
     theSession.userId = account['_id'];
+    theSession.role = account.role;
     await this.accountService.saveSessionToMongo(
       theSession.userId,
       theSession.id,
     );
-    return account;
+    return lodash.omit(account, ['role']);
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   async updateAccount(
     @Body() updateAccountDto: UpdateAccountDTO,
     @Param('id') theId: number,
@@ -122,6 +125,7 @@ export class AccountController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard)
   async deleteAccount(@Param('id') theId: number): Promise<void> {
     await this.accountService.deleteAccount(theId);
   }

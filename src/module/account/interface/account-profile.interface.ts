@@ -8,4 +8,5 @@ export interface AccountProfile {
   language?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  role?: [string];
 }

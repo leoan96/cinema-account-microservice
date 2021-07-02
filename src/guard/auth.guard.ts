@@ -6,7 +6,7 @@ import { Request } from 'express';
 export class AuthGuard implements CanActivate {
   constructor(private configService: ConfigService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     return this.validateSession(request);
   }

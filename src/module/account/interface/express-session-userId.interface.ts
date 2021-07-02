@@ -1,5 +1,6 @@
 import { Session } from 'express-session';
 
-export interface ExpressSessionUserId extends Session {
+export interface ExpressSessionUser extends Session {
   userId: string;
+  role: [string];
 }
