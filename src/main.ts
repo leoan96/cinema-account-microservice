@@ -10,14 +10,17 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { RedisConnectService } from './module/redis/service/redis-connect.service';
 import { RedisSubscribeExpiredService } from './module/session/redis-subscribe-expired.service';
 import { CustomLogger } from './logger/custom-logger.logger';
+import { LoggingInterceptor } from './interceptor/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useLogger(app.get(CustomLogger));
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   // general config service
   const config = app.get(ConfigurationService).get('appConfig');
   const session = app.get(RedisConnectService).getRedisSession();
+
   await app.get(RedisSubscribeExpiredService).subscribeRedisExpired();
 
   app.use(helmet());

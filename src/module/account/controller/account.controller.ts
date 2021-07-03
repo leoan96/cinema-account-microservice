@@ -101,11 +101,11 @@ export class AccountController {
     */
     theSession.userId = account['_id'];
     theSession.user = account;
+
     await this.accountService.saveSessionToMongo(
       theSession.userId,
       theSession.id,
     );
-    this.logger.debug('AccountController: login method - Testing Logger');
     return lodash.omit(account, ['role']);
   }
 

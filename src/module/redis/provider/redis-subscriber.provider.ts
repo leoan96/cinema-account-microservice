@@ -14,7 +14,8 @@ export const RedisSubscriberClient = {
 
     const client: Redis.Redis = new Redis(redisClientOptions);
     // enable option to receive events produced by redis events
-    client.config('SET', 'notify-keyspace-events', 'Ex');
+    //stackoverflow.com/questions/58682974/listen-for-changes-in-redis-list
+    https: client.config('SET', 'notify-keyspace-events', 'Ex');
     return client;
   },
   inject: [ConfigService],
