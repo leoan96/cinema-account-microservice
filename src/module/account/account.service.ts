@@ -12,7 +12,6 @@ import * as lodash from 'lodash';
 import { hashPassword } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
 import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
-import { ExpressSessionUser } from './interface/express-session-userId.interface';
 
 @Injectable()
 export class AccountService {
