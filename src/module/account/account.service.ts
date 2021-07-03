@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -12,7 +12,6 @@ import * as lodash from 'lodash';
 import { hashPassword } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
 import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
-import { ExpressSessionUser } from './interface/express-session-userId.interface';
 
 @Injectable()
 export class AccountService {

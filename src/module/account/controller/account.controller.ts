@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Session,
@@ -30,6 +31,8 @@ export class AccountController {
   //   2. write error handling (wrong id / wrong input / malicious input - try to change _id of mongodb)
   //   3. check if account exists before updating / deleting / creating account
   //   4. add feature support to store an array of session id to schema
+
+  private readonly logger = new Logger(AccountController.name);
 
   constructor(
     private readonly accountService: AccountService,
@@ -98,6 +101,7 @@ export class AccountController {
     */
     theSession.userId = account['_id'];
     theSession.user = account;
+
     await this.accountService.saveSessionToMongo(
       theSession.userId,
       theSession.id,

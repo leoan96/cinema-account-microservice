@@ -8,6 +8,7 @@ import {
   Logger,
   Param,
   Put,
+  Session,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/guard/auth.guard';
@@ -17,6 +18,7 @@ import { RoleGuard } from 'src/guard/role/role.guard';
 import { UpdateAccountDTO } from '../dto/update-account-profile.dto';
 import { AccountProfile } from '../interface/account-profile.interface';
 import { AccountService } from '../account.service';
+import { ExpressSessionUser } from '../interface/express-session-userId.interface';
 
 @Controller('/account/admin')
 export class AccountAdminController {
@@ -44,27 +46,52 @@ export class AccountAdminController {
   @HttpCode(HttpStatus.OK)
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RoleGuard)
-  async destroySession(@Param('id') sessionid: string): Promise<void> {
+  async destroySession(
+    @Param('id') sessionid: string,
+    @Session() session: ExpressSessionUser,
+  ): Promise<void> {
     await this.accountService.destroySession(sessionid);
-    this.logger.log('DESTROY SESSION...');
+    const admin = session.user;
+
+    this.logger.log(
+      `[ADMIN - ${session.userId} ${admin.firstName} ${admin.lastName}] : Performing destroy session operation on session id - ${sessionid}`,
+    );
   }
 
+  // should delete this feature or place limitations as admin should not be able to edit user information
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RoleGuard)
   async updateAccount(
     @Body() updateAccountDto: UpdateAccountDTO,
-    @Param('id') theId: string,
+    @Param('id') accountId: string,
+    @Session() session: ExpressSessionUser,
   ): Promise<AccountProfile> {
-    return await this.accountService.updateAccount(updateAccountDto, theId);
+    const updatedAccountDetails: AccountProfile =
+      await this.accountService.updateAccount(updateAccountDto, accountId);
+    const admin = session.user;
+
+    this.logger.log(
+      `[ADMIN - ${session.userId} ${admin.firstName} ${admin.lastName}] : Performing update account operation on account id - ${accountId}`,
+    );
+
+    return updatedAccountDetails;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RoleGuard)
-  async deleteAccount(@Param('id') theId: string): Promise<void> {
-    await this.accountService.deleteAccount(theId);
+  async deleteAccount(
+    @Param('id') accountId: string,
+    @Session() session: ExpressSessionUser,
+  ): Promise<void> {
+    const admin = session.user;
+    await this.accountService.deleteAccount(accountId);
+
+    this.logger.log(
+      `[ADMIN - ${session.userId} ${admin.firstName} ${admin.lastName}] : Performing delete account operation on account id - ${accountId}`,
+    );
   }
 }
