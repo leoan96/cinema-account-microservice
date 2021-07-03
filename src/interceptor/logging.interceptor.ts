@@ -26,6 +26,7 @@ export class LoggingInterceptor implements NestInterceptor {
     // https://www.coreycleary.me/should-you-log-the-express-req-object-and-external-api-responses
 
     // Log to external log manager api in future for log tracing
+    // Cannot log response object when error is thrown as filter catches the error before interceptor (find solution)
 
     const { body, rawHeaders, httpVersion, method, socket, url } = request;
     const { remoteAddress, remoteFamily } = socket;

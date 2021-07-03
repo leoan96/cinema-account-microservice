@@ -11,6 +11,10 @@ import { RedisConnectService } from './module/redis/service/redis-connect.servic
 import { RedisSubscribeExpiredService } from './module/session/redis-subscribe-expired.service';
 import { CustomLogger } from './logger/custom-logger.logger';
 import { LoggingInterceptor } from './interceptor/logging.interceptor';
+import { Logger } from '@nestjs/common';
+import { AllExceptionFilter } from './filter/http-exception.filter';
+
+const logger = new Logger('Main');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -25,6 +29,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors(config.cors);
+  app.useGlobalFilters(new AllExceptionFilter());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   app.set('trust proxy', 1); // trust first proxy
@@ -39,3 +44,11 @@ async function bootstrap() {
   await app.listen(app.get('ConfigService').get('app.port'));
 }
 bootstrap();
+
+process.on('uncaughtException', (error) => {
+  logger.error(
+    `UNCAUGHT EXCEPTION - keeping process alive:\n ${
+      error.stack
+    }\n ${JSON.stringify(error)}`,
+  );
+});
