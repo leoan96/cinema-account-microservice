@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   Put,
   UseGuards,
@@ -19,6 +20,8 @@ import { AccountService } from '../account.service';
 
 @Controller('/account/admin')
 export class AccountAdminController {
+  private readonly logger = new Logger(AccountAdminController.name);
+
   constructor(private readonly accountService: AccountService) {}
 
   @Get('')
@@ -43,6 +46,7 @@ export class AccountAdminController {
   @UseGuards(AuthGuard, RoleGuard)
   async destroySession(@Param('id') sessionid: string): Promise<void> {
     await this.accountService.destroySession(sessionid);
+    this.logger.log('DESTROY SESSION...');
   }
 
   @Put(':id')
