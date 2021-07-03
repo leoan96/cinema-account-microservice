@@ -10,6 +10,8 @@ import { AccountController } from './controller/account.controller';
 
 @Module({
   imports: [
+    // possibly moving password encryption to a pre-save hook by mongoose
+    // https://stackoverflow.com/questions/62553953/nest-js-mongoose-why-is-my-pre-save-hook-failing-to-be-triggered
     MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema }]),
     RedisModule,
     AuthenticationModule,

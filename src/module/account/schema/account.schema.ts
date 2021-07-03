@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Role } from 'src/guard/role/role.enum';
 
 export type AccountDocument = Account & Document;
 
@@ -32,7 +33,7 @@ export class Account {
   @Prop({ select: false })
   redisSessionId?: string;
 
-  @Prop({ select: false })
+  @Prop({ select: false, enum: [Role.Admin, Role.User] })
   role: [string];
 }
 
