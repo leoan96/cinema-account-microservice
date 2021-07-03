@@ -12,6 +12,7 @@ import * as lodash from 'lodash';
 import { hashPassword } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
 import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
+import { ExpressSessionUser } from './interface/express-session-userId.interface';
 
 @Injectable()
 export class AccountService {
@@ -97,8 +98,16 @@ export class AccountService {
   }
 
   async destroySession(sessionId: string): Promise<void> {
-    const id = `sess:${sessionId}`;
-    const { userId } = JSON.parse(await this.redisPromiseService.get(id));
+    const id: string = `sess:${sessionId}`;
+    const sessionString: string = await this.redisPromiseService.get(id);
+
+    if (!sessionString) {
+      throw new Error(
+        'Invalid session id. Error throwing would be replaced by a custom error',
+      );
+    }
+
+    const { userId } = JSON.parse(sessionString);
     await this.detroySessionFromMongo(userId);
     await this.redisPromiseService.del(id);
   }
