@@ -4,6 +4,8 @@ export class CreateAccountDTO {
   password: string;
   email: string;
   phone: string;
+  gender: string;
+  avatar: string;
   language?: string;
 }
 

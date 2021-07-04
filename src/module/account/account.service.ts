@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -9,7 +9,7 @@ import { UpdateAccountDTO } from './dto/update-account-profile.dto';
 import { AccountProfile } from './interface/account-profile.interface';
 import { Account, AccountDocument } from './schema/account.schema';
 import * as lodash from 'lodash';
-import { hashPassword } from './account.helper';
+import { hashPassword, isAccountTaken } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
 import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
 
@@ -21,6 +21,7 @@ export class AccountService {
     private readonly redisPromiseService: RedisPromiseService,
   ) {}
 
+  // modify to show different account information based on role
   async getAllAccounts(): Promise<AccountProfile[]> {
     return await this.accountModel.find({});
   }
@@ -38,8 +39,19 @@ export class AccountService {
       'password',
       'email',
       'phone',
+      'gender',
       'language',
+      'avatar',
     ]);
+
+    const accountExist = await isAccountTaken(
+      this.accountModel,
+      filteredAccountDetails.email,
+    );
+
+    if (accountExist) {
+      throw new BadRequestException('Account is already taken.');
+    }
 
     const hashedPassword = await hashPassword(filteredAccountDetails.password);
     const newAccount: CreateAccountRoleDTO = {
@@ -47,16 +59,32 @@ export class AccountService {
       password: hashedPassword,
       role: [DEFAULT_ACCOUNT_ROLE],
     };
-    return await this.accountModel.create(newAccount);
+
+    const createdAccount = await this.accountModel.create(newAccount);
+    const filterNewAccountDetails = lodash.pick(createdAccount, [
+      'role',
+      'firstName',
+      'lastName',
+      'email',
+      'gender',
+      'phone',
+      'language',
+      'createdAt',
+      'id',
+      'avatar',
+    ]);
+
+    return filterNewAccountDetails;
   }
 
   async updateAccount(
     updateAccountDto: UpdateAccountDTO,
     theId: string,
   ): Promise<AccountProfile> {
-    const account = this.getAccountById(theId);
+    const account = await this.getAccountById(theId);
+
     if (!account) {
-      throw new Error('Invalid id');
+      throw new BadRequestException('Invalid id given');
     }
 
     const updatedAccountObject = { ...account, ...updateAccountDto };

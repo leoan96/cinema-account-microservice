@@ -13,6 +13,7 @@ import { CustomLogger } from './logger/custom-logger.logger';
 import { LoggingInterceptor } from './interceptor/logging.interceptor';
 import { Logger } from '@nestjs/common';
 import { AllExceptionFilter } from './filter/http-exception.filter';
+import { MongoExceptionFilter } from './filter/mongodb-exception.filter';
 
 const logger = new Logger('Main');
 
@@ -30,6 +31,7 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors(config.cors);
   app.useGlobalFilters(new AllExceptionFilter());
+  app.useGlobalFilters(new MongoExceptionFilter());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   app.set('trust proxy', 1); // trust first proxy

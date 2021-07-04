@@ -70,8 +70,8 @@ export class AccountController {
   @HttpCode(HttpStatus.CREATED)
   async createAccount(
     @Body() createAccountDto: CreateAccountDTO,
-  ): Promise<void> {
-    await this.accountService.createAccount(createAccountDto);
+  ): Promise<AccountProfile> {
+    return await this.accountService.createAccount(createAccountDto);
   }
 
   @Post('login')

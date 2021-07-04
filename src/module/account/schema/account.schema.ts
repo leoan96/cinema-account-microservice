@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as moment from 'moment';
 
 export type AccountDocument = Account & Document;
 
@@ -20,14 +21,22 @@ export class Account {
   @Prop({ required: true, unique: true })
   phone: string;
 
+  @Prop({ required: true })
+  gender: string;
+
   @Prop({ default: 'en' })
   language?: string;
 
-  @Prop()
+  @Prop({ default: new Date().toISOString() })
   createdAt: Date;
 
   @Prop()
   updatedAt: Date;
+
+  @Prop({
+    default: 'https://image.flaticon.com/icons/png/512/2922/2922688.png',
+  })
+  avatar: string;
 
   @Prop({ select: false })
   redisSessionId?: string;
