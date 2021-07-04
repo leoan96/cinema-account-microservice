@@ -19,6 +19,7 @@ import { UpdateAccountDTO } from '../dto/update-account-profile.dto';
 import { AccountProfile } from '../interface/account-profile.interface';
 import { AccountService } from '../account.service';
 import { ExpressSessionUser } from '../interface/express-session-userId.interface';
+import { ValidationPipe } from 'src/pipe/validation.pipe';
 
 @Controller('/account/admin')
 export class AccountAdminController {
@@ -38,8 +39,10 @@ export class AccountAdminController {
   @HttpCode(HttpStatus.OK)
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RoleGuard)
-  async getAccountById(@Param('id') theId: string): Promise<AccountProfile> {
-    return await this.accountService.getAccountById(theId);
+  async getAccountById(
+    @Param('id') accountId: string,
+  ): Promise<AccountProfile> {
+    return await this.accountService.getAccountById(accountId);
   }
 
   @Get('destroySession/:id')
@@ -47,14 +50,14 @@ export class AccountAdminController {
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RoleGuard)
   async destroySession(
-    @Param('id') sessionid: string,
+    @Param('id') sessionId: string,
     @Session() session: ExpressSessionUser,
   ): Promise<void> {
-    await this.accountService.destroySession(sessionid);
+    await this.accountService.destroySession(sessionId);
     const admin = session.user;
 
     this.logger.log(
-      `[ADMIN - ${session.userId} ${admin.firstName} ${admin.lastName}] : Performing destroy session operation on session id - ${sessionid}`,
+      `[ADMIN - ${session.userId} ${admin.firstName} ${admin.lastName}] : Performing destroy session operation on session id - ${sessionId}`,
     );
   }
 
@@ -64,7 +67,7 @@ export class AccountAdminController {
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RoleGuard)
   async updateAccount(
-    @Body() updateAccountDto: UpdateAccountDTO,
+    @Body(new ValidationPipe()) updateAccountDto: UpdateAccountDTO,
     @Param('id') accountId: string,
     @Session() session: ExpressSessionUser,
   ): Promise<AccountProfile> {
