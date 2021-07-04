@@ -11,7 +11,6 @@ import {
   Session,
   UseGuards,
 } from '@nestjs/common';
-import * as httpContext from 'express-http-context';
 import * as lodash from 'lodash';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role/role.decorator';
@@ -70,7 +69,7 @@ export class AccountController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() loginDto: LoginDTO,
+    @Body(new ValidationPipe()) loginDto: LoginDTO,
     @Session() theSession: ExpressSessionUser,
   ): Promise<AccountProfile> {
     const { email, password } = loginDto;
@@ -107,7 +106,7 @@ export class AccountController {
   @Roles(Role.User)
   @UseGuards(AuthGuard, RoleGuard)
   async updateAccount(
-    @Body() updateAccountDto: UpdateAccountDTO,
+    @Body(new ValidationPipe()) updateAccountDto: UpdateAccountDTO,
     @Session() session: ExpressSessionUser,
   ): Promise<AccountProfile> {
     return await this.accountService.updateAccount(

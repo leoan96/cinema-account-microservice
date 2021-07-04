@@ -1,4 +1,11 @@
-import { IsEmail, IsIn, IsString, Length, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  Length,
+  MaxLength,
+} from 'class-validator';
 
 // custom validation (https://dev.to/avantar/custom-validation-with-database-in-nestjs-gao)
 export class CreateAccountDTO {
@@ -11,7 +18,7 @@ export class CreateAccountDTO {
   lastName: string;
 
   @IsString()
-  @Length(8, 30)
+  @Length(8, 50)
   password: string;
 
   @IsEmail()
@@ -28,6 +35,7 @@ export class CreateAccountDTO {
 
   @IsString()
   @MaxLength(200)
+  @IsOptional()
   avatar: string;
 
   @IsString()
