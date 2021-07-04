@@ -27,11 +27,6 @@ import { ExpressSessionUser } from '../interface/express-session-userId.interfac
 
 @Controller('/account')
 export class AccountController {
-  //   1. updateAccountDto - extract only allowed property (if not included in updateAccountDto, don't extract)
-  //   2. write error handling (wrong id / wrong input / malicious input - try to change _id of mongodb)
-  //   3. check if account exists before updating / deleting / creating account
-  //   4. add feature support to store an array of session id to schema
-
   private readonly logger = new Logger(AccountController.name);
 
   constructor(

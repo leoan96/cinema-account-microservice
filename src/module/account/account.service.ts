@@ -88,7 +88,11 @@ export class AccountService {
       throw new BadRequestException('Invalid id given');
     }
 
-    const updatedAccountObject = { ...account, ...updateAccountDto };
+    const updatedAccountObject = {
+      ...account,
+      ...updateAccountDto,
+      updatedAt: new Date(),
+    };
     const updatedAccount = await this.accountModel.findByIdAndUpdate(
       accountId,
       updatedAccountObject,
