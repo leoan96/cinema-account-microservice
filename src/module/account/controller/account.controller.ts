@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role/role.decorator';
 import { Role } from 'src/guard/role/role.enum';
 import { RoleGuard } from 'src/guard/role/role.guard';
+import { ValidationPipe } from 'src/pipe/validation.pipe';
 import { AuthenticationService } from '../../authentication/authentication.service';
 import { AccountService } from '../account.service';
 import { CreateAccountDTO } from '../dto/create-account.dto';
@@ -38,14 +39,6 @@ export class AccountController {
     private readonly accountService: AccountService,
     private readonly authenticationService: AuthenticationService,
   ) {}
-
-  // testing express-http-context library
-  // REMOVE: when logger middleware is implemented
-  @Get('testHttpContext')
-  configTest(): string {
-    const correlationId: string = httpContext.get('correlationId');
-    return correlationId;
-  }
 
   @Get('')
   @HttpCode(HttpStatus.OK)
@@ -69,7 +62,7 @@ export class AccountController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createAccount(
-    @Body() createAccountDto: CreateAccountDTO,
+    @Body(new ValidationPipe()) createAccountDto: CreateAccountDTO,
   ): Promise<AccountProfile> {
     return await this.accountService.createAccount(createAccountDto);
   }
