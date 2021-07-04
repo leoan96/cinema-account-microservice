@@ -9,6 +9,7 @@ import { BaseExceptionFilter } from '@nestjs/core';
 import { Request, Response } from 'express';
 import * as httpContext from 'express-http-context';
 import * as moment from 'moment';
+import { ErrorException } from 'src/exception/error.exception';
 
 @Catch()
 export class AllExceptionFilter extends BaseExceptionFilter {
@@ -28,6 +29,11 @@ export class AllExceptionFilter extends BaseExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    const validationError =
+      exception instanceof ErrorException
+        ? exception.getResponse()['validationError']
+        : '';
+
     const userErrorMessage =
       statusCode === 500 ? 'Internal Server Error' : exception.message;
 
@@ -43,6 +49,7 @@ export class AllExceptionFilter extends BaseExceptionFilter {
       correlationId,
       statusCode,
       message: userErrorMessage,
+      ...(validationError && { validationError }),
     };
 
     const loggerErrorResponse = {
@@ -53,6 +60,7 @@ export class AllExceptionFilter extends BaseExceptionFilter {
       method,
       path,
       systemErrorMessage,
+      ...(validationError && { validationError }),
       exceptionStack,
     };
 

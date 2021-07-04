@@ -27,7 +27,7 @@ export class AccountService {
   }
 
   async getAccountById(theId: string): Promise<AccountProfile> {
-    return await this.accountModel.findById(theId);
+    return await this.accountModel.findById(theId).lean();
   }
 
   async createAccount(
@@ -61,6 +61,7 @@ export class AccountService {
     };
 
     const createdAccount = await this.accountModel.create(newAccount);
+    // lots of repeated lodash.pick (to refactor in future)
     const filterNewAccountDetails = lodash.pick(createdAccount, [
       'role',
       'firstName',
@@ -79,17 +80,21 @@ export class AccountService {
 
   async updateAccount(
     updateAccountDto: UpdateAccountDTO,
-    theId: string,
+    accountId: string,
   ): Promise<AccountProfile> {
-    const account = await this.getAccountById(theId);
+    const account = await this.getAccountById(accountId);
 
     if (!account) {
       throw new BadRequestException('Invalid id given');
     }
 
-    const updatedAccountObject = { ...account, ...updateAccountDto };
-    const updatedAccount = this.accountModel.findByIdAndUpdate(
-      theId,
+    const updatedAccountObject = {
+      ...account,
+      ...updateAccountDto,
+      updatedAt: new Date(),
+    };
+    const updatedAccount = await this.accountModel.findByIdAndUpdate(
+      accountId,
       updatedAccountObject,
       {
         new: true,

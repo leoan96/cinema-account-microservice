@@ -11,12 +11,12 @@ import {
   Session,
   UseGuards,
 } from '@nestjs/common';
-import * as httpContext from 'express-http-context';
 import * as lodash from 'lodash';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { Roles } from 'src/guard/role/role.decorator';
 import { Role } from 'src/guard/role/role.enum';
 import { RoleGuard } from 'src/guard/role/role.guard';
+import { ValidationPipe } from 'src/pipe/validation.pipe';
 import { AuthenticationService } from '../../authentication/authentication.service';
 import { AccountService } from '../account.service';
 import { CreateAccountDTO } from '../dto/create-account.dto';
@@ -27,25 +27,12 @@ import { ExpressSessionUser } from '../interface/express-session-userId.interfac
 
 @Controller('/account')
 export class AccountController {
-  //   1. updateAccountDto - extract only allowed property (if not included in updateAccountDto, don't extract)
-  //   2. write error handling (wrong id / wrong input / malicious input - try to change _id of mongodb)
-  //   3. check if account exists before updating / deleting / creating account
-  //   4. add feature support to store an array of session id to schema
-
   private readonly logger = new Logger(AccountController.name);
 
   constructor(
     private readonly accountService: AccountService,
     private readonly authenticationService: AuthenticationService,
   ) {}
-
-  // testing express-http-context library
-  // REMOVE: when logger middleware is implemented
-  @Get('testHttpContext')
-  configTest(): string {
-    const correlationId: string = httpContext.get('correlationId');
-    return correlationId;
-  }
 
   @Get('')
   @HttpCode(HttpStatus.OK)
@@ -69,7 +56,7 @@ export class AccountController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createAccount(
-    @Body() createAccountDto: CreateAccountDTO,
+    @Body(new ValidationPipe()) createAccountDto: CreateAccountDTO,
   ): Promise<AccountProfile> {
     return await this.accountService.createAccount(createAccountDto);
   }
@@ -77,7 +64,7 @@ export class AccountController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() loginDto: LoginDTO,
+    @Body(new ValidationPipe()) loginDto: LoginDTO,
     @Session() theSession: ExpressSessionUser,
   ): Promise<AccountProfile> {
     const { email, password } = loginDto;
@@ -114,7 +101,7 @@ export class AccountController {
   @Roles(Role.User)
   @UseGuards(AuthGuard, RoleGuard)
   async updateAccount(
-    @Body() updateAccountDto: UpdateAccountDTO,
+    @Body(new ValidationPipe()) updateAccountDto: UpdateAccountDTO,
     @Session() session: ExpressSessionUser,
   ): Promise<AccountProfile> {
     return await this.accountService.updateAccount(
