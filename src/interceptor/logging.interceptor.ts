@@ -27,6 +27,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     // Log to external log manager api in future for log tracing
     // Cannot log response object when error is thrown as filter catches the error before interceptor (find solution)
+    // https://stackoverflow.com/questions/19215042/express-logging-response-body
 
     const { body, rawHeaders, httpVersion, method, socket, url } = request;
     const { remoteAddress, remoteFamily } = socket;
@@ -57,21 +58,38 @@ export class LoggingInterceptor implements NestInterceptor {
         const { rawHeaders, httpVersion, method, socket, url } = request;
         const { remoteAddress, remoteFamily } = socket;
         const { statusCode, statusMessage } = response;
-        const headers = response.getHeaders();
+
+        const correlationId = request['correlationId'];
         const timestamp = +moment();
+        const time = new Date().toUTCString();
+        const processingTime = moment
+          .unix(timestamp - startTimestamp)
+          .format('SSS');
+        const fromIP = request.headers['x-forwarded-for'];
+        const originalUrl = request.originalUrl;
+        const referer = request.headers.referer || '';
+        const userAgent = request.headers['user-agent'];
+        const headers = response.getHeaders();
 
         const responseJson = {
-          body: filterRequestBody,
           timestamp,
-          processingTime: moment.unix(timestamp - startTimestamp).format('s'),
+          time,
+          processingTime,
+          correlationId,
+          statusCode,
+          originalUrl,
+          url,
           rawHeaders,
           httpVersion,
           method,
           remoteAddress,
           remoteFamily,
-          url,
-          response: {
-            statusCode,
+          fromIP,
+
+          referer,
+          userAgent,
+          requestBody: filterRequestBody,
+          responseData: {
             statusMessage,
             headers,
           },
@@ -81,7 +99,7 @@ export class LoggingInterceptor implements NestInterceptor {
           context.getClass().name
         } -> ${request['route']['path']}], CorrelationId: ${
           request['correlationId']
-        }, body: ${JSON.stringify(responseJson)}`;
+        }, response: ${JSON.stringify(responseJson)}`;
 
         this.logger.log(outgoingResponse);
       }),
