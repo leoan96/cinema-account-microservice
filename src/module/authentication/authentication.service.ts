@@ -24,6 +24,7 @@ export class AuthenticationService {
     if (!account || !(await comparePassword(password, account.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
+
     return lodash.pick(account, [
       'role',
       'firstName',
@@ -33,7 +34,7 @@ export class AuthenticationService {
       'phone',
       'language',
       'createdAt',
-      'id',
+      '_id',
       'avatar',
     ]);
   }
