@@ -8,8 +8,8 @@ import {
 import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import * as lodash from 'lodash';
 import * as moment from 'moment';
+import * as lodash from 'lodash';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -27,63 +27,96 @@ export class LoggingInterceptor implements NestInterceptor {
 
     // Log to external log manager api in future for log tracing
     // Cannot log response object when error is thrown as filter catches the error before interceptor (find solution)
+    // https://stackoverflow.com/questions/19215042/express-logging-response-body
 
-    const { body, rawHeaders, httpVersion, method, socket, url } = request;
+    // repeated code; same body, rawHeaders, ... used below (to refactor in future)
+    const { body, headers, httpVersion, method, socket, url } = request;
+    const filteredHeaders = lodash.omit(headers, 'authorization'); // hide backend token
+
     const { remoteAddress, remoteFamily } = socket;
-    const filterRequestBody = lodash.omit(body, 'password');
     const startTimestamp = +moment();
+    const correlationId = request['correlationId'];
+
+    const incomingRequestTo = `Incoming request to [${
+      context.getClass().name
+    } -> ${request['route']['path']}]`;
+
+    const time = new Date().toISOString();
+    const fromIP = request.headers['x-forwarded-for'];
+    const originalUrl = request.originalUrl;
+    const referer = request.headers.referer || '';
+    const userAgent = request.headers['user-agent'];
+    const filterRequestBody = { ...body, password: '******' }; // hide password
 
     const requestJson = {
-      ...filterRequestBody,
       timestamp: startTimestamp,
-      rawHeaders,
-      httpVersion,
+      time,
+      correlationId,
+      incomingRequestTo,
       method,
+      originalUrl,
+      url,
+      headers: filteredHeaders,
+      httpVersion,
       remoteAddress,
       remoteFamily,
-      url,
+      fromIP,
+      referer,
+      userAgent,
+      requestBody: filterRequestBody,
     };
 
-    const incomingRequest = `Time: ${startTimestamp}, Incoming request to [${
-      context.getClass().name
-    } -> ${request['route']['path']}], CorrelationId: ${
-      request['correlationId']
-    }, body: ${JSON.stringify(requestJson)}`;
-
-    this.logger.log(incomingRequest);
+    this.logger.log(JSON.stringify(requestJson));
 
     return next.handle().pipe(
       tap(() => {
-        const { rawHeaders, httpVersion, method, socket, url } = request;
+        const { httpVersion, method, socket, url } = request;
         const { remoteAddress, remoteFamily } = socket;
         const { statusCode, statusMessage } = response;
-        const headers = response.getHeaders();
+
+        const correlationId = request['correlationId'];
         const timestamp = +moment();
+        const time = new Date().toISOString();
+        const processingTime = moment
+          .unix(timestamp - startTimestamp)
+          .format('SSS');
+
+        const outgoingResponseFrom = `Outgoing response from [${
+          context.getClass().name
+        } -> ${request['route']['path']}]`;
+
+        const fromIP = request.headers['x-forwarded-for'];
+        const originalUrl = request.originalUrl;
+        const referer = request.headers.referer || '';
+        const userAgent = request.headers['user-agent'];
+        const headers = response.getHeaders();
 
         const responseJson = {
-          body: filterRequestBody,
           timestamp,
-          processingTime: moment.unix(timestamp - startTimestamp).format('s'),
-          rawHeaders,
-          httpVersion,
+          time,
+          processingTime,
+          correlationId,
+          outgoingResponseFrom,
+          statusCode,
           method,
+          originalUrl,
+          url,
+          headers: filteredHeaders,
+          httpVersion,
           remoteAddress,
           remoteFamily,
-          url,
-          response: {
-            statusCode,
+          fromIP,
+          referer,
+          userAgent,
+          requestBody: filterRequestBody,
+          responseData: {
             statusMessage,
             headers,
           },
         };
 
-        const outgoingResponse = `Time: ${timestamp}, Outgoing response from [${
-          context.getClass().name
-        } -> ${request['route']['path']}], CorrelationId: ${
-          request['correlationId']
-        }, body: ${JSON.stringify(responseJson)}`;
-
-        this.logger.log(outgoingResponse);
+        // might add response data from res.json() in the future
+        this.logger.log(JSON.stringify(responseJson));
       }),
     );
   }

@@ -27,16 +27,16 @@ export class RoleGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const session: ExpressSessionUser = request.session;
 
-    if (!session?.user) {
-      throw new Error('To be replaced with custom error');
-    }
+    // if (!session?.user) {
+    //   throw new Error('To be replaced with custom error');
+    // }
 
     const verifiedBackendToken = verifyBackendToken(
       request,
       this.configService,
     );
     const verifiedARequiredRoles = allowedRoles.some((role) =>
-      session.user.role?.includes(role),
+      session.user?.role?.includes(role),
     );
 
     return verifiedARequiredRoles || verifiedBackendToken;

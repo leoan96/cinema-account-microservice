@@ -1,20 +1,20 @@
 import {
   ArgumentsHost,
   Catch,
-  HttpException,
+  ExceptionFilter,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { BaseExceptionFilter } from '@nestjs/core';
 import { Request, Response } from 'express';
 import * as httpContext from 'express-http-context';
 import * as moment from 'moment';
+import { MongoError } from 'mongodb';
 
-@Catch()
-export class AllExceptionFilter extends BaseExceptionFilter {
-  private readonly logger = new Logger(AllExceptionFilter.name);
+@Catch(MongoError)
+export class MongoExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(MongoExceptionFilter.name);
 
-  catch(exception: Error | HttpException, host: ArgumentsHost) {
+  catch(exception: MongoError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request: Request = ctx.getRequest<Request>();
     const response: Response = ctx.getResponse<Response>();
@@ -23,19 +23,20 @@ export class AllExceptionFilter extends BaseExceptionFilter {
     const time = new Date().toUTCString();
     const correlationId: string = httpContext.get('correlationId');
 
-    const statusCode =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const userErrorMessage =
-      statusCode === 500 ? 'Internal Server Error' : exception.message;
+    const statusCode = +exception.code;
 
     const systemErrorMessage = exception.message;
-
     const method = request.method;
-    const path = request.originalUrl;
     const exceptionStack = exception.stack;
+
+    let userErrorMessage;
+    switch (statusCode) {
+      case 11000:
+        userErrorMessage = 'Duplicate key';
+        break;
+      default:
+        userErrorMessage = 'Database error ... please try again later';
+    }
 
     const errorResponse = {
       timestamp,
@@ -51,12 +52,11 @@ export class AllExceptionFilter extends BaseExceptionFilter {
       correlationId,
       statusCode,
       method,
-      path,
       systemErrorMessage,
       exceptionStack,
     };
 
     this.logger.error(JSON.stringify(loggerErrorResponse));
-    response.status(statusCode).json(errorResponse);
+    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(errorResponse);
   }
 }
