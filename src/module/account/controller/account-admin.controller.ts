@@ -20,6 +20,7 @@ import { AccountProfile } from '../interface/account-profile.interface';
 import { AccountService } from '../account.service';
 import { ExpressSessionUser } from '../interface/express-session-userId.interface';
 import { ValidationPipe } from 'src/pipe/validation.pipe';
+import { UserRedisSession } from '../interface/user-redis-session.interface';
 
 @Controller('/account/admin')
 export class AccountAdminController {
@@ -43,6 +44,16 @@ export class AccountAdminController {
     @Param('id') accountId: string,
   ): Promise<AccountProfile> {
     return await this.accountService.getAccountById(accountId);
+  }
+
+  @Get('getAccountByRedisSessionId/:redisSessionId')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RoleGuard)
+  async getAccountByRedisSessionId(
+    @Param('redisSessionId') sessionId,
+  ): Promise<UserRedisSession> {
+    return await this.accountService.getAccountByRedisSessionId(sessionId);
   }
 
   @Get('destroySession/:id')
