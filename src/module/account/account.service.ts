@@ -12,6 +12,8 @@ import * as lodash from 'lodash';
 import { hashPassword, isAccountTaken } from './account.helper';
 import { RedisPromiseService } from '../redis/service/redis-promise.service';
 import { DEFAULT_ACCOUNT_ROLE } from './account.constant';
+import { UserRedisSession } from './interface/user-redis-session.interface';
+import { ExpressSessionUser } from './interface/express-session-userId.interface';
 
 @Injectable()
 export class AccountService {
@@ -23,11 +25,41 @@ export class AccountService {
 
   // modify to show different account information based on role
   async getAllAccounts(): Promise<AccountProfile[]> {
-    return await this.accountModel.find({});
+    return await this.accountModel
+      .find({})
+      .select('+redisSessionId +role')
+      .lean();
+  }
+
+  async getAccountByRedisSessionId(
+    sessionId: string,
+  ): Promise<UserRedisSession> {
+    const key: ExpressSessionUser = JSON.parse(
+      await this.redisPromiseService.get(`sess:${sessionId}`),
+    );
+
+    if (!key) {
+      throw new BadRequestException('Invalid session id.');
+    }
+
+    let account = await this.accountModel.findOne({
+      redisSessionId: sessionId,
+    });
+
+    if (!account) {
+      account = await this.accountModel.findByIdAndUpdate(key.userId, {
+        redisSessionId: sessionId,
+      });
+    }
+
+    return account;
   }
 
   async getAccountById(theId: string): Promise<AccountProfile> {
-    return await this.accountModel.findById(theId).lean();
+    return await this.accountModel
+      .findById(theId)
+      .select('+redisSessionId +role')
+      .lean();
   }
 
   async createAccount(
