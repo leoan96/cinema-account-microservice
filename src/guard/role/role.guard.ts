@@ -2,8 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { verifyBackendToken } from 'shared/utils';
-import { ExpressSessionUser } from 'src/module/account/interface/express-session-userId.interface';
+import { verifyBackendToken } from '../../../shared/utils';
+import { ExpressSessionUser } from '../../module/account/interface/express-session-userId.interface';
 import { ROLES_KEY } from './role.decorator';
 import { Role } from './role.enum';
 

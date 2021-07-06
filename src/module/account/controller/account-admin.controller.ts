@@ -11,15 +11,15 @@ import {
   Session,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/guard/auth.guard';
-import { Roles } from 'src/guard/role/role.decorator';
-import { Role } from 'src/guard/role/role.enum';
-import { RoleGuard } from 'src/guard/role/role.guard';
+import { AuthGuard } from '../../../guard/auth.guard';
+import { Roles } from '../../../guard/role/role.decorator';
+import { Role } from '../../../guard/role/role.enum';
+import { RoleGuard } from '../../../guard/role/role.guard';
 import { UpdateAccountDTO } from '../dto/update-account-profile.dto';
 import { AccountProfile } from '../interface/account-profile.interface';
 import { AccountService } from '../account.service';
 import { ExpressSessionUser } from '../interface/express-session-userId.interface';
-import { ValidationPipe } from 'src/pipe/validation.pipe';
+import { ValidationPipe } from '../../../pipe/validation.pipe';
 import { UserRedisSession } from '../interface/user-redis-session.interface';
 
 @Controller('/account/admin')

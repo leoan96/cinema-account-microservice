@@ -12,11 +12,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import * as lodash from 'lodash';
-import { AuthGuard } from 'src/guard/auth.guard';
-import { Roles } from 'src/guard/role/role.decorator';
-import { Role } from 'src/guard/role/role.enum';
-import { RoleGuard } from 'src/guard/role/role.guard';
-import { ValidationPipe } from 'src/pipe/validation.pipe';
+import { AuthGuard } from '../../../guard/auth.guard';
+import { Roles } from '../../../guard/role/role.decorator';
+import { Role } from '../../../guard/role/role.enum';
+import { RoleGuard } from '../../../guard/role/role.guard';
+import { ValidationPipe } from '../../../pipe/validation.pipe';
 import { AuthenticationService } from '../../authentication/authentication.service';
 import { AccountService } from '../account.service';
 import { CreateAccountDTO } from '../dto/create-account.dto';

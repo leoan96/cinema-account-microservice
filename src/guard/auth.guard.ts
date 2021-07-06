@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { verifyBackendToken } from 'shared/utils';
+import { verifyBackendToken } from '../../shared/utils';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
