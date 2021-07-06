@@ -14,6 +14,8 @@ import { LoggingInterceptor } from './interceptor/logging.interceptor';
 import { Logger } from '@nestjs/common';
 import { AllExceptionFilter } from './filter/http-exception.filter';
 import { MongoExceptionFilter } from './filter/mongodb-exception.filter';
+import { initializeSwagger } from './app.configuration';
+import { ConfigService } from '@nestjs/config';
 
 const logger = new Logger('Main');
 
@@ -42,6 +44,7 @@ async function bootstrap() {
   // https://stackoverflow.com/questions/65828687/how-to-set-csurf-express-middleware-up-to-work-with-postman (How to set CSURF (Express Middleware) up to work with Postman?)
   // app.use(csurf());
   app.use(setCorrelationId);
+  initializeSwagger(app, app.get(ConfigService));
 
   await app.listen(app.get('ConfigService').get('app.port'));
 }
