@@ -5,7 +5,7 @@ import { RedisModule } from '../redis/redis.module';
 import { AccountService } from './account.service';
 import { Account, AccountSchema } from './schema/account.schema';
 import { AccountAdminController } from './controller/account-admin.controller';
-import { LoggerModule } from 'src/logger/logger.module';
+import { LoggerModule } from '../../logger/logger.module';
 import { AccountController } from './controller/account.controller';
 
 @Module({

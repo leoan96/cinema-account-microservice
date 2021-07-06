@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AccountService } from 'src/module/account/account.service';
-import { RedisSubscriberService } from 'src/module/redis/service/redis-subscriber.service';
+import { AccountService } from '../../module/account/account.service';
+import { RedisSubscriberService } from '../../module/redis/service/redis-subscriber.service';
 
 @Injectable()
 export class RedisSubscribeExpiredService {

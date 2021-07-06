@@ -9,7 +9,7 @@ import { BaseExceptionFilter } from '@nestjs/core';
 import { Request, Response } from 'express';
 import * as httpContext from 'express-http-context';
 import * as moment from 'moment';
-import { ErrorException } from 'src/exception/error.exception';
+import { ErrorException } from '../exception/error.exception';
 
 @Catch()
 export class AllExceptionFilter extends BaseExceptionFilter {
