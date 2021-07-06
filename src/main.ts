@@ -9,17 +9,31 @@ import { ConfigurationService } from './config/configuration.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { RedisConnectService } from './module/redis/service/redis-connect.service';
 import { RedisSubscribeExpiredService } from './module/session/redis-subscribe-expired.service';
+import { CustomLogger } from './logger/custom-logger.logger';
+import { LoggingInterceptor } from './interceptor/logging.interceptor';
+import { Logger } from '@nestjs/common';
+import { AllExceptionFilter } from './filter/http-exception.filter';
+import { MongoExceptionFilter } from './filter/mongodb-exception.filter';
+import { initializeSwagger } from './app.configuration';
+import { ConfigService } from '@nestjs/config';
+
+const logger = new Logger('Main');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useLogger(app.get(CustomLogger));
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   // general config service
   const config = app.get(ConfigurationService).get('appConfig');
   const session = app.get(RedisConnectService).getRedisSession();
+
   await app.get(RedisSubscribeExpiredService).subscribeRedisExpired();
 
   app.use(helmet());
   app.enableCors(config.cors);
+  app.useGlobalFilters(new AllExceptionFilter());
+  app.useGlobalFilters(new MongoExceptionFilter());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   app.set('trust proxy', 1); // trust first proxy
@@ -30,7 +44,16 @@ async function bootstrap() {
   // https://stackoverflow.com/questions/65828687/how-to-set-csurf-express-middleware-up-to-work-with-postman (How to set CSURF (Express Middleware) up to work with Postman?)
   // app.use(csurf());
   app.use(setCorrelationId);
+  initializeSwagger(app, app.get(ConfigService));
 
   await app.listen(app.get('ConfigService').get('app.port'));
 }
 bootstrap();
+
+process.on('uncaughtException', (error) => {
+  logger.error(
+    `UNCAUGHT EXCEPTION - keeping process alive:\n ${
+      error.stack
+    }\n ${JSON.stringify(error)}`,
+  );
+});

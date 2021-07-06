@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { comparePassword } from '../account/account.helper';
@@ -22,9 +22,21 @@ export class AuthenticationService {
       .lean();
 
     if (!account || !(await comparePassword(password, account.password))) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
-    return lodash.omit(account, 'password');
+
+    return lodash.pick(account, [
+      'role',
+      'firstName',
+      'lastName',
+      'email',
+      'gender',
+      'phone',
+      'language',
+      'createdAt',
+      '_id',
+      'avatar',
+    ]);
   }
 
   async logout(session: ExpressSessionUser): Promise<void> {

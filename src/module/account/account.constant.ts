@@ -1,1 +1,1 @@
-export const DEFAULT_ACCOUNT_ROLE = 'user';
+export const DEFAULT_ACCOUNT_ROLE: string = 'user';

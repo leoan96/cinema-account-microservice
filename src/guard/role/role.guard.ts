@@ -2,8 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { verifyBackendToken } from 'shared/utils';
-import { ExpressSessionUser } from 'src/module/account/interface/express-session-userId.interface';
+import { verifyBackendToken } from '../../../shared/utils';
+import { ExpressSessionUser } from '../../module/account/interface/express-session-userId.interface';
 import { ROLES_KEY } from './role.decorator';
 import { Role } from './role.enum';
 
@@ -27,16 +27,16 @@ export class RoleGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const session: ExpressSessionUser = request.session;
 
-    if (!session?.user) {
-      throw new Error('To be replaced with custom error');
-    }
+    // if (!session?.user) {
+    //   throw new Error('To be replaced with custom error');
+    // }
 
     const verifiedBackendToken = verifyBackendToken(
       request,
       this.configService,
     );
     const verifiedARequiredRoles = allowedRoles.some((role) =>
-      session.user.role?.includes(role),
+      session.user?.role?.includes(role),
     );
 
     return verifiedARequiredRoles || verifiedBackendToken;
