@@ -42,7 +42,7 @@ export class UpdateAccountDTO {
   @IsString()
   @MaxLength(200)
   @IsOptional()
-  avatar: string;
+  avatar?: string;
 
   @IsString()
   @IsIn(['en', 'cn', 'ms'])
