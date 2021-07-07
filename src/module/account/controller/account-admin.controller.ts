@@ -22,11 +22,15 @@ import { ExpressSessionUser } from '../interface/express-session-userId.interfac
 import { ValidationPipe } from '../../../pipe/validation.pipe';
 import { UserRedisSession } from '../interface/user-redis-session.interface';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 @ApiTags('admin')
@@ -44,17 +48,14 @@ export class AccountAdminController {
     description:
       'Retrieves all acccount, authorized to admin role or backend token only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Retrieved all accounts',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have admin role or backend token',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -78,17 +79,14 @@ export class AccountAdminController {
     description:
       'Retrieves a specific acccount, authorized to admin role or backend token only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Retrieved account',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have admin role or backend token',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -113,17 +111,14 @@ export class AccountAdminController {
     description:
       'Retrieves a specific acccount, authorized to admin role or backend token only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Retrieved account',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have admin role or backend token',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @Get('getAccountByRedisSessionId/:redisSessionId')
@@ -150,17 +145,14 @@ export class AccountAdminController {
     description:
       'Destroy session by redis session id, authorized to admin role or backend token only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Destroyed redis session id',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have admin role or backend token',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -193,21 +185,17 @@ export class AccountAdminController {
     description:
       'Update account by account id, authorized to admin role or backend token only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Updated account profile of given account id',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have admin role or backend token',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiBadRequestResponse({
     description: 'Provided invalid data or failed validation',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiOkResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -243,21 +231,17 @@ export class AccountAdminController {
     description:
       'Delete account by account id, authorized to admin role or backend token only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiNoContentResponse({
     description: 'Delete account profile of given account id',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have admin role or backend token',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiBadRequestResponse({
     description: 'Provided invalid data.',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
