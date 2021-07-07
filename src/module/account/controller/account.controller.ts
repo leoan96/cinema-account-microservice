@@ -12,11 +12,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
   ApiOperation,
-  ApiParam,
-  ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import * as lodash from 'lodash';
 import { AuthGuard } from '../../../guard/auth.guard';
@@ -50,17 +53,14 @@ export class AccountController {
     description:
       'Retrieves a specific acccount, authorized to appropriate redis session only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Retrieved account',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have appropriate redis session',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -78,12 +78,10 @@ export class AccountController {
     summary: 'Logout account',
     description: 'Logout account by destroying redis session id',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Successfully logged out',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -100,16 +98,18 @@ export class AccountController {
     summary: 'Create a new account',
     description: 'Create a new account using validated values',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Successfully created a new account',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiUnauthorizedResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description:
+      'Not authorized to performed this operation. Must have appropriate redis session',
+  })
+  @ApiBadRequestResponse({
     description: 'Validation error. Please enter valid values',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.CREATED)
@@ -125,16 +125,13 @@ export class AccountController {
     summary: 'Login account',
     description: 'Login account by setting redis session id',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Successfully logged in account',
   })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
+  @ApiBadRequestResponse({
     description: 'Invalid login credentials',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -180,17 +177,17 @@ export class AccountController {
     summary: 'Update account with valid redis session id',
     description: 'Update account, authorized to appropriate redis session only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Retrieved account',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have appropriate redis session',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiBadRequestResponse({
+    description: 'Invalid update details',
+  })
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.OK)
@@ -213,17 +210,14 @@ export class AccountController {
     summary: 'Delete account with valid redis session id',
     description: 'Delete account, authorized to appropriate redis session only',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiNoContentResponse({
     description: 'Successfully deleted account',
   })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
+  @ApiUnauthorizedResponse({
     description:
       'Not authorized to performed this operation. Must have appropriate redis session',
   })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
+  @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
