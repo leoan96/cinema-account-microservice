@@ -1,0 +1,576 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Account API",
+    "description": "Handles account authentication and user CRUD",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "accounts",
+      "description": "Perform logins, logouts, and user CRUD"
+    },
+    {
+      "name": "admin",
+      "description": "Perform CRUD with admin role"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "backendToken": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Auth for bearer token"
+      },
+      "redisSessionCookie": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "apiKey",
+        "description": "Auth for redis session",
+        "in": "cookie",
+        "name": "connect.sid"
+      }
+    },
+    "schemas": {
+      "CreateAccountDTO": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "first name",
+            "example": "Arvy"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "last name",
+            "example": "Pomfrey"
+          },
+          "password": {
+            "type": "string",
+            "description": "password",
+            "example": "2YAphqhvpu&!cFq5zL27Bwe*D@Xpi9"
+          },
+          "email": {
+            "type": "string",
+            "description": "email",
+            "example": "apomfrey0@paypal.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "phone",
+            "example": "233-117-9340"
+          },
+          "gender": {
+            "type": "string",
+            "description": "gender",
+            "enum": [
+              "female",
+              "male"
+            ],
+            "example": "female"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "avatar",
+            "example": "https://image.flaticon.com/icons/png/512/2922/2922688.png"
+          },
+          "language": {
+            "type": "string",
+            "description": "language",
+            "example": "en"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "password",
+          "email",
+          "phone",
+          "gender"
+        ]
+      },
+      "LoginDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "email",
+            "example": "stan@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "password",
+            "example": "5hh#I$KPCfdqD8b1r5S7rlHY0"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UpdateAccountDTO": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "first name",
+            "example": "Frank"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "last name",
+            "example": "Gordan"
+          },
+          "password": {
+            "type": "string",
+            "description": "password",
+            "example": "5hh#I$KPCfdqD8b1r5S7rlHY0"
+          },
+          "email": {
+            "type": "string",
+            "description": "email",
+            "example": "frank@gmail.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "phone",
+            "example": "341-393-134"
+          },
+          "gender": {
+            "type": "string",
+            "description": "gender",
+            "enum": [
+              "female",
+              "male"
+            ],
+            "example": "female"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "avatar link",
+            "example": "https://image.flaticon.com/icons/png/512/2922/2922688.png"
+          },
+          "language": {
+            "type": "string",
+            "description": "language",
+            "example": "en"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "created at",
+            "example": "2021-07-06T07:36:34.394Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "updated at",
+            "example": "2021-07-06T07:36:34.394Z"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/account": {
+      "get": {
+        "operationId": "getUserAccountById",
+        "summary": "Get a single account by redis session id",
+        "description": "Retrieves a specific acccount, authorized to appropriate redis session only",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Retrieved account"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have appropriate redis session"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "redisSessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createAccount",
+        "summary": "Create a new account",
+        "description": "Create a new account using validated values",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created a new account"
+          },
+          "400": {
+            "description": "Validation error. Please enter valid values"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have appropriate redis session"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      },
+      "put": {
+        "operationId": "updateUserAccount",
+        "summary": "Update account with valid redis session id",
+        "description": "Update account, authorized to appropriate redis session only",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Retrieved account"
+          },
+          "400": {
+            "description": "Invalid update details"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have appropriate redis session"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "redisSessionCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteUserAccount",
+        "summary": "Delete account with valid redis session id",
+        "description": "Delete account, authorized to appropriate redis session only",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted account"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have appropriate redis session"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "redisSessionCookie": []
+          }
+        ]
+      }
+    },
+    "/account/logout": {
+      "get": {
+        "operationId": "logout",
+        "summary": "Logout account",
+        "description": "Logout account by destroying redis session id",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully logged out"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/account/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Login account",
+        "description": "Login account by setting redis session id",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully logged in account"
+          },
+          "400": {
+            "description": "Invalid login credentials"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/account/admin": {
+      "get": {
+        "operationId": "getAllAccounts",
+        "summary": "Get all accounts",
+        "description": "Retrieves all acccount, authorized to admin role or backend token only",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Retrieved all accounts"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have admin role or backend token"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "backendToken": []
+          }
+        ]
+      }
+    },
+    "/account/admin/{id}": {
+      "get": {
+        "operationId": "getAccountById",
+        "summary": "Get a single account by account id",
+        "description": "Retrieves a specific acccount, authorized to admin role or backend token only",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Account id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved account"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have admin role or backend token"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "backendToken": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "updateAccount",
+        "summary": "Update account",
+        "description": "Update account by account id, authorized to admin role or backend token only",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Account id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated account profile of given account id"
+          },
+          "400": {
+            "description": "Provided invalid data or failed validation"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have admin role or backend token"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "backendToken": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteAccount",
+        "summary": "Delete account",
+        "description": "Delete account by account id, authorized to admin role or backend token only",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Account id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Delete account profile of given account id"
+          },
+          "400": {
+            "description": "Provided invalid data."
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have admin role or backend token"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "backendToken": []
+          }
+        ]
+      }
+    },
+    "/account/admin/getAccountByRedisSessionId/{redisSessionId}": {
+      "get": {
+        "operationId": "getAccountByRedisSessionId",
+        "summary": "Get a single account by redis session id",
+        "description": "Retrieves a specific acccount, authorized to admin role or backend token only",
+        "parameters": [
+          {
+            "name": "redisSessionId",
+            "required": true,
+            "in": "path",
+            "description": "Redis session id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved account"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have admin role or backend token"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "backendToken": []
+          }
+        ]
+      }
+    },
+    "/account/admin/destroySession/{id}": {
+      "get": {
+        "operationId": "destroySession",
+        "summary": "Destroy redis session",
+        "description": "Destroy session by redis session id, authorized to admin role or backend token only",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Redis session id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Destroyed redis session id"
+          },
+          "401": {
+            "description": "Not authorized to performed this operation. Must have admin role or backend token"
+          },
+          "500": {
+            "description": "Something went terribly wrong"
+          }
+        },
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "backendToken": []
+          }
+        ]
+      }
+    }
+  }
+}
