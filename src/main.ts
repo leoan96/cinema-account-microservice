@@ -42,7 +42,7 @@ async function bootstrap() {
   const config = app.get(ConfigurationService).get('appConfig');
   const session = app.get(RedisConnectService).getRedisSession();
 
-  // await app.get(RedisSubscribeExpiredService).subscribeRedisExpired();
+  await app.get(RedisSubscribeExpiredService).subscribeRedisExpired();
 
   app.use(helmet());
   app.enableCors(config.cors);

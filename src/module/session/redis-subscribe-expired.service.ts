@@ -27,8 +27,6 @@ export class RedisSubscribeExpiredService {
         // message: sess:WQDBfSXSMJgLozKgX8-XM97iMOD7DdVr
         // above is what variable message contains but the sessionId store in MongoDB is WQDBfSXSMJgLozKgX8-XM97iMOD7DdVr
         // the sessionId does not contain "sess:" as prefix
-        // NOTICE: found out during kafka implementation that the redis expired event is not consistant, i.e. the expired events
-        // are not received by this.redisSubscriberService.subscribe('__keyevent@0__:expired') every few expired events (not sure why)
         this.client.emit(API_ACCOUNT_KAFKA.DESTROY_REDIS_SESSION_TOPIC, {
           timestamp: new Date().toISOString(),
           message: message.split(':')[1],
