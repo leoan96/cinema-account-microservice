@@ -16,11 +16,25 @@ import { AllExceptionFilter } from './filter/http-exception.filter';
 import { MongoExceptionFilter } from './filter/mongodb-exception.filter';
 import { initializeSwagger } from './app.configuration';
 import { ConfigService } from '@nestjs/config';
+import { Transport } from '@nestjs/microservices';
+import { API_ACCOUNT_KAFKA } from './module/session/redis-kafka-producer.constants';
 
 const logger = new Logger('Main');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const kafkaMicroservice = app.connectMicroservice({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: API_ACCOUNT_KAFKA.BROKERS,
+      },
+      consumer: {
+        groupId: API_ACCOUNT_KAFKA.CONSUMER_GROUP_ID,
+      },
+    },
+  });
+
   app.useLogger(app.get(CustomLogger));
   app.useGlobalInterceptors(new LoggingInterceptor());
 
@@ -46,7 +60,10 @@ async function bootstrap() {
   app.use(setCorrelationId);
   initializeSwagger(app, app.get(ConfigService));
 
-  await app.listen(app.get('ConfigService').get('app.port'));
+  await app.startAllMicroservicesAsync();
+  const port = app.get('ConfigService').get('app.port');
+  await app.listen(port);
+  logger.log(`Server running on port ${port}...`);
 }
 bootstrap();
 
