@@ -1,13 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { AccountService } from '../../module/account/account.service';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
 import { RedisSubscriberService } from '../../module/redis/service/redis-subscriber.service';
+import { API_ACCOUNT_KAFKA } from './redis-kafka-producer.constants';
 
 @Injectable()
 export class RedisSubscribeExpiredService {
   constructor(
+    @Inject(API_ACCOUNT_KAFKA.SERVICE_NAME)
+    private readonly client: ClientKafka,
     private readonly redisSubscriberService: RedisSubscriberService,
-    private readonly accountService: AccountService,
   ) {}
+
+  async onApplicationBootstrap() {
+    await this.client.connect();
+  }
 
   async subscribeRedisExpired(): Promise<void> {
     /*
@@ -21,9 +27,13 @@ export class RedisSubscribeExpiredService {
         // message: sess:WQDBfSXSMJgLozKgX8-XM97iMOD7DdVr
         // above is what variable message contains but the sessionId store in MongoDB is WQDBfSXSMJgLozKgX8-XM97iMOD7DdVr
         // the sessionId does not contain "sess:" as prefix
-        await this.accountService.destroySessionFromMongoBySessionId(
-          message.split(':')[1],
-        );
+        // NOTICE: found out during kafka implementation that the redis expired event is not consistant, i.e. the expired events
+        // are not received by this.redisSubscriberService.subscribe('__keyevent@0__:expired') every few expired events (not sure why)
+        this.client.emit(API_ACCOUNT_KAFKA.DESTROY_REDIS_SESSION_TOPIC, {
+          timestamp: new Date().toISOString(),
+          message: message.split(':')[1],
+          from: API_ACCOUNT_KAFKA.CLIENT_ID,
+        });
       },
     );
   }
