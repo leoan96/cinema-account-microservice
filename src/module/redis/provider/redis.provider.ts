@@ -1,19 +1,19 @@
-import { ConfigService } from '@nestjs/config';
 import * as redis from 'redis';
+import { VAULT_CLIENT } from 'src/hashicorp-vault/vault.provider';
 
 export const REDIS_CLIENT = 'RedisClient';
 
 export const RedisClient = {
   provide: REDIS_CLIENT,
-  useFactory: (configService: ConfigService) => {
+  useFactory: async (vault) => {
     const redisClientOptions = {
-      host: configService.get<string>('redis.host'),
-      port: configService.get<number>('redis.port'),
-      auth_pass: configService.get<string>('redis.password'),
+      host: vault.REDIS_HOST,
+      port: vault.REDIS_PORT,
+      auth_pass: vault.REDIS_PASSWORD,
     };
 
     const client = redis.createClient(redisClientOptions);
     return client;
   },
-  inject: [ConfigService],
+  inject: [VAULT_CLIENT],
 };

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { appConfiguration } from './app.configuration';
 import { ConfigurationModule } from './config/config.module';
+import { VaultModule } from './hashicorp-vault/vault.module';
 import { AccountModule } from './module/account/account.module';
 import { AuthenticationModule } from './module/authentication/authentication.module';
 import { mongooseConfiguration } from './module/mongoose/mongoose.configuration';
@@ -24,6 +25,7 @@ import { SessionModule } from './module/session/session.module';
     ConfigurationModule,
     AuthenticationModule,
     SessionModule,
+    VaultModule,
   ],
 })
 export class AppModule {}

@@ -1,12 +1,12 @@
-import { ConfigService } from '@nestjs/config';
+import { VAULT_CLIENT } from 'src/hashicorp-vault/vault.provider';
 
 export const MongooseClient = {
-  useFactory: async (configService: ConfigService) => ({
-    uri: configService.get<string>('mongoose.uri'),
+  useFactory: async (vault) => ({
+    uri: vault.MONGO_DATABASE_URI,
     useUnifiedTopology: true,
     useFindAndModify: false,
     useNewUrlParser: true,
     createIndexes: false,
   }),
-  inject: [ConfigService],
+  inject: [VAULT_CLIENT],
 };
