@@ -18,6 +18,7 @@ import { initializeSwagger } from './app.configuration';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
 import { API_ACCOUNT_KAFKA } from './module/session/redis-kafka-producer.constants';
+import { VAULT_CLIENT } from './hashicorp-vault/vault.provider';
 
 const logger = new Logger('Main');
 
@@ -61,7 +62,7 @@ async function bootstrap() {
   initializeSwagger(app, app.get(ConfigService));
 
   await app.startAllMicroservicesAsync();
-  const port = app.get('ConfigService').get('app.port');
+  const port = app.get(VAULT_CLIENT).SERVER_PORT;
   await app.listen(port);
   logger.log(`Server running on port ${port}...`);
 }
