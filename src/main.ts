@@ -24,11 +24,18 @@ const logger = new Logger('Main');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const vault = app.get(VAULT_CLIENT);
   const kafkaMicroservice = app.connectMicroservice({
     transport: Transport.KAFKA,
     options: {
       client: {
-        brokers: API_ACCOUNT_KAFKA.BROKERS,
+        brokers: vault.KAFKA_BROKER.split(','),
+        ssl: true,
+        sasl: {
+          mechanism: 'scram-sha-256',
+          username: vault.KAFKA_USERNAME,
+          password: vault.KAFKA_PASSWORD,
+        },
       },
       consumer: {
         groupId: API_ACCOUNT_KAFKA.CONSUMER_GROUP_ID,
@@ -62,7 +69,7 @@ async function bootstrap() {
   initializeSwagger(app, app.get(ConfigService));
 
   await app.startAllMicroservicesAsync();
-  const port = app.get(VAULT_CLIENT).SERVER_PORT;
+  const port = vault.SERVER_PORT;
   await app.listen(port);
   logger.log(`Server running on port ${port}...`);
 }
