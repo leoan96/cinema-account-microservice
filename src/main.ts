@@ -16,11 +16,33 @@ import { AllExceptionFilter } from './filter/http-exception.filter';
 import { MongoExceptionFilter } from './filter/mongodb-exception.filter';
 import { initializeSwagger } from './app.configuration';
 import { ConfigService } from '@nestjs/config';
+import { Transport } from '@nestjs/microservices';
+import { API_ACCOUNT_KAFKA } from './module/session/redis-kafka-producer.constants';
+import { VAULT_CLIENT } from './hashicorp-vault/vault.provider';
 
 const logger = new Logger('Main');
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const vault = app.get(VAULT_CLIENT);
+  const kafkaMicroservice = app.connectMicroservice({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: vault.KAFKA_BROKER.split(','),
+        ssl: true,
+        sasl: {
+          mechanism: 'scram-sha-256',
+          username: vault.KAFKA_USERNAME,
+          password: vault.KAFKA_PASSWORD,
+        },
+      },
+      consumer: {
+        groupId: API_ACCOUNT_KAFKA.CONSUMER_GROUP_ID,
+      },
+    },
+  });
+
   app.useLogger(app.get(CustomLogger));
   app.useGlobalInterceptors(new LoggingInterceptor());
 
@@ -46,7 +68,10 @@ async function bootstrap() {
   app.use(setCorrelationId);
   initializeSwagger(app, app.get(ConfigService));
 
-  await app.listen(app.get('ConfigService').get('app.port'));
+  await app.startAllMicroservicesAsync();
+  const port = vault.SERVER_PORT;
+  await app.listen(port);
+  logger.log(`Server running on port ${port}...`);
 }
 bootstrap();
 

@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as fs from 'fs';
 
 export const appConfiguration = () => ({
   app: {
@@ -24,15 +25,12 @@ export const initializeSwagger = (
     .setTitle('Account API')
     .setDescription('Handles account authentication and user CRUD')
     .setVersion('1.0.0')
-    .addTag('accounts')
-    .addTag('admin')
+    .addTag('accounts', 'Perform logins, logouts, and user CRUD')
+    .addTag('admin', 'Perform CRUD with admin role')
     .addBearerAuth(
       {
         type: 'http',
         description: 'Auth for bearer token',
-        scheme: 'bearer',
-        bearerFormat: 'token',
-        in: 'header',
       },
       'backendToken',
     )
@@ -45,9 +43,19 @@ export const initializeSwagger = (
       },
       'redisSessionCookie',
     )
-    .setBasePath(appBaseUrl)
+    .addServer(appBaseUrl) // Produces TypeError: NetworkError when attempting to fetch resource when addServer is not 'http://localhost:3000', i.e. (http://127.0.0.1:3000), could be CORS
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  const writeSwaggerJson = (path: string, document) => {
+    fs.writeFileSync(
+      `${path}/swagger.json`,
+      JSON.stringify(document, null, 2),
+      {
+        encoding: 'utf8',
+      },
+    );
+  };
+  writeSwaggerJson(`${process.cwd()}`, document);
   SwaggerModule.setup('api', app, document);
 };
